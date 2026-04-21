@@ -73,14 +73,13 @@ async def executor_node(state: AgentState) -> AgentState:
     """执行节点 - 调用 API"""
     provider_name = state.get("selected_provider")
     task_params = state.get("task_params", {})
+    async_mode = state.get("async_mode", False)
 
     if not provider_name or not task_params:
         state["error"] = {"message": "Missing provider or task params"}
         return state
 
     try:
-        # 这里需要从 session 获取 task_service
-        # 简化处理，实际需要通过依赖注入
         from app.agent.graph import get_task_service
 
         task_service = get_task_service()
@@ -88,7 +87,6 @@ async def executor_node(state: AgentState) -> AgentState:
             state["error"] = {"message": "Task service not initialized"}
             return state
 
-        # 从参数中获取任务类型
         task_type_str = task_params.get("type", "image")
         task_type = TaskType(task_type_str)
 
@@ -101,8 +99,12 @@ async def executor_node(state: AgentState) -> AgentState:
 
         state["task_id"] = task.id
 
-        # 执行任务（同步等待完成）
-        # 实际应该是异步的，通过 WebSocket 推送进度
+        # 异步模式：只创建任务，不等待执行
+        if async_mode:
+            state["api_response"] = {"status": "pending", "task_id": task.id}
+            return state
+
+        # 同步模式：等待任务完成
         result_task = await task_service.execute_task(task.id)
 
         if result_task.status.value == "completed":
