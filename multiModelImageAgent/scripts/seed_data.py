@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-"""种子数据 - 添加默认模型配置"""
+"""Seed data - Add default model configuration"""
 import asyncio
 import sys
 import os
 
-# 添加项目根目录到 path
+# Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
@@ -59,13 +59,13 @@ DALLE_CONFIG = {
 
 
 async def seed_dalle():
-    """添加 DALL-E 3 配置"""
+    """Add DALL-E 3 configuration"""
     from app.db.session import AsyncSessionLocal
     from app.models.model_provider import ModelProvider
     from sqlalchemy import select
 
     async with AsyncSessionLocal() as session:
-        # 检查是否已存在
+        # Check if exists
         result = await session.execute(
             select(ModelProvider).where(ModelProvider.name == "dalle")
         )
@@ -75,13 +75,13 @@ async def seed_dalle():
             provider = ModelProvider(**DALLE_CONFIG)
             session.add(provider)
             await session.commit()
-            print("✅ DALL-E 3 配置已添加")
+            print("[OK] DALL-E 3 configuration added")
         else:
-            print("ℹ️ DALL-E 3 配置已存在")
+            print("[INFO] DALL-E 3 configuration already exists")
 
 
 async def seed_error_configs(provider_id: str):
-    """添加错误处理配置"""
+    """Add error handling configuration"""
     from app.db.session import AsyncSessionLocal
     from app.models.error_handling import ErrorHandlingConfig
 
@@ -123,11 +123,11 @@ async def seed_error_configs(provider_id: str):
             config = ErrorHandlingConfig(**config_data)
             session.add(config)
         await session.commit()
-        print(f"✅ {len(error_configs)} 条错误处理配置已添加")
+        print(f"[OK] {len(error_configs)} error handling configs added")
 
 
 async def seed_error_messages(provider_id: str):
-    """添加错误消息模板"""
+    """Add error message templates"""
     from app.db.session import AsyncSessionLocal
     from app.models.error_message import ErrorMessageTemplate
 
@@ -136,29 +136,29 @@ async def seed_error_messages(provider_id: str):
             "provider_id": provider_id,
             "error_type": "INVALID_PARAMETER",
             "language": "zh",
-            "user_message_template": "参数错误：{parameter}。已为您自动修正为：{fixed_value}",
-            "suggestions": ["检查输入参数", "尝试简化描述"]
+            "user_message_template": "Parameter error: {parameter}. Auto-corrected to: {fixed_value}",
+            "suggestions": ["Check input parameters", "Try simplifying description"]
         },
         {
             "provider_id": provider_id,
             "error_type": "RATE_LIMIT_EXCEEDED",
             "language": "zh",
-            "user_message_template": "服务请求过于频繁，请稍后再试。预计等待时间：{wait_time}秒",
-            "suggestions": ["等待后重试", "降低请求频率"]
+            "user_message_template": "Too many requests. Please wait {wait_time} seconds",
+            "suggestions": ["Wait and retry", "Reduce request frequency"]
         },
         {
             "provider_id": provider_id,
             "error_type": "TIMEOUT",
             "language": "zh",
-            "user_message_template": "请求超时，服务响应时间过长",
-            "suggestions": ["稍后重试", "尝试减少图片尺寸"]
+            "user_message_template": "Request timeout. Service response time too long",
+            "suggestions": ["Retry later", "Try reducing image size"]
         },
         {
             "provider_id": provider_id,
             "error_type": "SERVER_ERROR",
             "language": "zh",
-            "user_message_template": "服务暂时不可用，请稍后再试",
-            "suggestions": ["稍后重试", "联系技术支持"]
+            "user_message_template": "Service temporarily unavailable. Please try again later",
+            "suggestions": ["Retry later", "Contact support"]
         }
     ]
 
@@ -167,15 +167,15 @@ async def seed_error_messages(provider_id: str):
             message = ErrorMessageTemplate(**msg_data)
             session.add(message)
         await session.commit()
-        print(f"✅ {len(messages)} 条错误消息模板已添加")
+        print(f"[OK] {len(messages)} error message templates added")
 
 
 async def main():
-    print("🌱 开始添加种子数据...")
+    print("Starting seed data...")
 
     await seed_dalle()
 
-    # 获取 provider_id 并添加错误配置
+    # Get provider_id and add error configs
     from app.db.session import AsyncSessionLocal
     from app.models.model_provider import ModelProvider
     from sqlalchemy import select
@@ -190,7 +190,7 @@ async def main():
             await seed_error_configs(provider.id)
             await seed_error_messages(provider.id)
 
-    print("✅ 种子数据添加完成！")
+    print("[DONE] Seed data complete!")
 
 
 if __name__ == "__main__":

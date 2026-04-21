@@ -1,10 +1,10 @@
 from sqlalchemy import Column, String, Boolean, Integer, Numeric, ForeignKey, JSON
 from sqlalchemy.orm import relationship
-from app.models.base import BaseModel
+from app.models.base import Base, TimestampMixin
 import uuid
 
 
-class ErrorHandlingConfig(BaseModel):
+class ErrorHandlingConfig(Base, TimestampMixin):
     __tablename__ = "error_handling_config"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))

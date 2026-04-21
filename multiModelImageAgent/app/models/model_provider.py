@@ -1,10 +1,10 @@
 from sqlalchemy import Column, String, Boolean, Integer, Text, JSON, Numeric
 from sqlalchemy.orm import relationship
-from app.models.base import BaseModel
+from app.models.base import Base, TimestampMixin
 import uuid
 
 
-class ModelProvider(BaseModel):
+class ModelProvider(Base, TimestampMixin):
     __tablename__ = "model_providers"
 
     # 基本信息
@@ -40,7 +40,7 @@ class ModelProvider(BaseModel):
     cost_per_image = Column(Numeric(10, 4))
     rate_limit = Column(Integer)
     max_concurrent = Column(Integer, default=10)
-    metadata = Column(JSON, default={})
+    extra_metadata = Column(JSON, default={})
     version = Column(Integer, default=1)
 
     # 关系

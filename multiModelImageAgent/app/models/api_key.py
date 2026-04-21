@@ -1,10 +1,10 @@
 from sqlalchemy import Column, String, Integer, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from app.models.base import BaseModel
+from app.models.base import Base, TimestampMixin
 import uuid
 
 
-class APIKey(BaseModel):
+class APIKey(Base, TimestampMixin):
     __tablename__ = "api_keys"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))

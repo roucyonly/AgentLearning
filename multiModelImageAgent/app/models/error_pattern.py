@@ -1,10 +1,10 @@
 from sqlalchemy import Column, String, Boolean, Integer, ForeignKey, JSON
 from sqlalchemy.orm import relationship
-from app.models.base import BaseModel
+from app.models.base import Base, TimestampMixin
 import uuid
 
 
-class ErrorPattern(BaseModel):
+class ErrorPattern(Base, TimestampMixin):
     __tablename__ = "error_patterns"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))

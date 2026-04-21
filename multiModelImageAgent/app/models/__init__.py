@@ -1,4 +1,4 @@
-from app.models.base import Base, BaseModel, TimestampMixin
+from app.models.base import Base, TimestampMixin
 from app.models.model_provider import ModelProvider
 from app.models.api_key import APIKey
 from app.models.error_handling import ErrorHandlingConfig
@@ -10,7 +10,6 @@ from app.models.usage_stats import ModelUsageStats
 
 __all__ = [
     "Base",
-    "BaseModel",
     "TimestampMixin",
     "ModelProvider",
     "APIKey",

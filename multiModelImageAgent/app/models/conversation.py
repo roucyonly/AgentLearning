@@ -1,10 +1,10 @@
 from sqlalchemy import Column, String, ForeignKey, Text, JSON
 from sqlalchemy.orm import relationship
-from app.models.base import BaseModel
+from app.models.base import Base, TimestampMixin
 import uuid
 
 
-class Conversation(BaseModel):
+class Conversation(Base, TimestampMixin):
     __tablename__ = "conversations"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -15,7 +15,7 @@ class Conversation(BaseModel):
     messages = relationship("ConversationMessage", back_populates="conversation", cascade="all, delete-orphan")
 
 
-class ConversationMessage(BaseModel):
+class ConversationMessage(Base, TimestampMixin):
     __tablename__ = "conversation_messages"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))

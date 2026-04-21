@@ -1,29 +1,29 @@
 #!/usr/bin/env python
-"""初始化数据库"""
+"""Initialize database"""
 import asyncio
 import sys
 import os
 
-# 添加项目根目录到 path
+# Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 async def init_db():
-    """初始化数据库"""
+    """Initialize database"""
     from app.db.session import engine
     from app.models.base import Base
 
     async with engine.begin() as conn:
-        # 创建所有表
+        # Create all tables
         await conn.run_sync(Base.metadata.create_all)
 
-    print("✅ 数据库表创建成功")
+    print("[OK] Database tables created successfully")
 
 
 async def main():
-    print("🚀 开始初始化数据库...")
+    print("Starting database initialization...")
     await init_db()
-    print("✅ 初始化完成！")
+    print("[DONE] Initialization complete!")
 
 
 if __name__ == "__main__":

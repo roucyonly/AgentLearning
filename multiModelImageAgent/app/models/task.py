@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, DateTime, ForeignKey, Enum, Text, JSON
 from sqlalchemy.orm import relationship
-from app.models.base import BaseModel
+from app.models.base import Base, TimestampMixin
 import uuid
 import enum
 
@@ -17,7 +17,7 @@ class TaskType(str, enum.Enum):
     VIDEO = "video"
 
 
-class Task(BaseModel):
+class Task(Base, TimestampMixin):
     __tablename__ = "tasks"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
