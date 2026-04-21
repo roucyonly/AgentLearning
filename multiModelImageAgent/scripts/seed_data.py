@@ -57,6 +57,40 @@ DALLE_CONFIG = {
     "max_concurrent": 10
 }
 
+DOUBAO_CONFIG = {
+    "name": "doubao",
+    "display_name": "Doubao LLM",
+    "description": "Volcengine Doubao LLM for intent recognition",
+    "provider_type": "llm",
+    "category": "volcengine",
+    "api_endpoint": "https://ark.cn-beijing.volces.com/api/v3/responses",
+    "api_version": "v3",
+    "http_method": "POST",
+    "auth_config": {
+        "type": "bearer",
+        "key_field": "Authorization"
+    },
+    "request_config": {
+        "timeout": 30,
+        "retry_enabled": True
+    },
+    "parameter_mapping": {
+        "prompt": "input.0.content.0.text"
+    },
+    "parameter_schema": {
+        "prompt": {"type": "string", "required": True}
+    },
+    "response_mapping": {
+        "output_text": "output.0.content.0.text"
+    },
+    "is_enabled": True,
+    "is_available": True,
+    "priority": 20,
+    "capabilities": ["text_generation", "intent_recognition"],
+    "rate_limit": 100,
+    "max_concurrent": 5
+}
+
 
 async def seed_dalle():
     """Add DALL-E 3 configuration"""
@@ -78,6 +112,27 @@ async def seed_dalle():
             print("[OK] DALL-E 3 configuration added")
         else:
             print("[INFO] DALL-E 3 configuration already exists")
+
+
+async def seed_doubao():
+    """Add Doubao configuration"""
+    from app.db.session import AsyncSessionLocal
+    from app.models.model_provider import ModelProvider
+    from sqlalchemy import select
+
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            select(ModelProvider).where(ModelProvider.name == "doubao")
+        )
+        existing = result.scalar_one_or_none()
+
+        if not existing:
+            provider = ModelProvider(**DOUBAO_CONFIG)
+            session.add(provider)
+            await session.commit()
+            print("[OK] Doubao configuration added")
+        else:
+            print("[INFO] Doubao configuration already exists")
 
 
 async def seed_error_configs(provider_id: str):
@@ -174,6 +229,7 @@ async def main():
     print("Starting seed data...")
 
     await seed_dalle()
+    await seed_doubao()
 
     # Get provider_id and add error configs
     from app.db.session import AsyncSessionLocal
@@ -181,11 +237,20 @@ async def main():
     from sqlalchemy import select
 
     async with AsyncSessionLocal() as session:
+        # Seed error configs for DALL-E
         result = await session.execute(
             select(ModelProvider).where(ModelProvider.name == "dalle")
         )
         provider = result.scalar_one_or_none()
+        if provider:
+            await seed_error_configs(provider.id)
+            await seed_error_messages(provider.id)
 
+        # Seed error configs for Doubao
+        result = await session.execute(
+            select(ModelProvider).where(ModelProvider.name == "doubao")
+        )
+        provider = result.scalar_one_or_none()
         if provider:
             await seed_error_configs(provider.id)
             await seed_error_messages(provider.id)

@@ -21,27 +21,14 @@
                 <div class="flex items-center">
                     <a href="/" class="text-xl font-bold text-gray-800">MultiModel Agent</a>
                     <div class="ml-10 flex space-x-4">
-                        <a href="/chat" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 {% if request.url.path == '/chat' %}text-blue-600{% endif %}">对话</a>
-                        <a href="/admin/models" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 {% if '/admin' in request.url.path %}text-blue-600{% endif %}">模型管理</a>
-                        <a href="/tasks" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 {% if request.url.path == '/tasks' %}text-blue-600{% endif %}">任务</a>
+                        <a href="/chat" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 {% if request.url.path == '/chat' %}text-blue-600{% endif %}">Chat</a>
+                        <a href="/admin/models" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 {% if '/admin' in request.url.path %}text-blue-600{% endif %}">Models</a>
+                        <a href="/tasks" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 {% if request.url.path == '/tasks' %}text-blue-600{% endif %}">Tasks</a>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
-
-    <!-- 消息区域 -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <div class="max-w-7xl mx-auto px-4 mt-4">
-            {% for category, message in messages %}
-            <div class="p-4 mb-4 rounded {% if category == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
-                {{ message }}
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-    {% endwith %}
 
     <!-- 主内容 -->
     <main class="max-w-7xl mx-auto px-4 py-6">

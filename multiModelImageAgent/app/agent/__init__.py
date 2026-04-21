@@ -1,6 +1,6 @@
 from app.agent.state import AgentState
 from app.agent.nodes import intent_node, planner_node, executor_node, response_node
-from app.agent.graph import create_agent_graph, run_agent, set_task_service, get_task_service
+from app.agent.graph import create_agent_graph, run_agent, set_services, get_task_service, get_conversation_service
 
 __all__ = [
     "AgentState",
@@ -10,6 +10,7 @@ __all__ = [
     "response_node",
     "create_agent_graph",
     "run_agent",
-    "set_task_service",
+    "set_services",
     "get_task_service",
+    "get_conversation_service",
 ]

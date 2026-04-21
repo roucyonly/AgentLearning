@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: str = ""
     OPENAI_API_KEY: str = ""
 
+    # Volcengine Doubao API (用于图像生成)
+    ARK_API_KEY: str = "ark-8301cef2-38dc-4506-b7d3-39a4128f904f-c6207"
+
     # 加密
     SECRET_KEY: str = "change-me-in-production"
     ENCRYPTION_KEY: str = "change-me-in-production"

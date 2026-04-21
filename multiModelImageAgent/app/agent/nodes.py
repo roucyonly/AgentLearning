@@ -5,24 +5,85 @@ from app.services.model_registry import ModelRegistry
 from app.services.task_service import TaskService
 from app.services.conversation import ConversationService
 from app.models.task import TaskType
+from app.config import get_settings
 
 
 async def intent_node(state: AgentState) -> AgentState:
-    """意图识别节点 - 分析用户意图，确定任务类型"""
+    """意图识别节点 - 使用豆包LLM分析用户意图，确定任务类型"""
     last_message = state["messages"][-1]
     user_input = last_message.content if hasattr(last_message, 'content') else str(last_message)
 
-    # 简单的意图识别逻辑
-    # 实际应该用 LLM 来分析
-    intent = _analyze_intent(user_input)
+    # 使用豆包LLM进行意图识别
+    intent = await _analyze_intent_with_llm(user_input)
 
     state["user_intent"] = intent
 
     return state
 
 
-def _analyze_intent(user_input: str) -> str:
-    """分析用户意图"""
+async def _analyze_intent_with_llm(user_input: str) -> str:
+    """使用豆包LLM分析用户意图"""
+    settings = get_settings()
+    api_key = settings.ARK_API_KEY
+
+    if not api_key:
+        # 如果没有配置API Key，使用简单的关键词匹配作为后备
+        return _keyword_fallback_intent(user_input)
+
+    try:
+        from openai import AsyncOpenAI
+
+        client = AsyncOpenAI(
+            api_key=api_key,
+            base_url="https://ark.cn-beijing.volces.com/api/v3"
+        )
+
+        response = await client.responses.create(
+            model="doubao-seed",
+            input=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": f"""请分析用户输入的意图。用户输入："{user_input}"
+
+任务类型选项：
+1. image_generation - 用户想要生成图片/图像
+2. video_generation - 用户想要生成视频
+3. unknown - 无法确定意图
+
+请根据用户输入返回一个最合适的任务类型（只需返回类型名称，如：image_generation）。"""
+                        }
+                    ]
+                }
+            ],
+            extra={
+                "intent": "intent_recognition"
+            }
+        )
+
+        intent = response.output[0].content[0].text.strip().lower()
+
+        # 验证返回的意图是否有效
+        valid_intents = ["image_generation", "video_generation", "unknown"]
+        if intent not in valid_intents:
+            # 尝试从返回内容中提取有效意图
+            for valid_intent in valid_intents:
+                if valid_intent in intent:
+                    return valid_intent
+            return "unknown"
+
+        return intent
+
+    except Exception as e:
+        # LLM调用失败时使用后备方案
+        print(f"[WARN] Doubao LLM调用失败: {e}，使用后备意图识别")
+        return _keyword_fallback_intent(user_input)
+
+
+def _keyword_fallback_intent(user_input: str) -> str:
+    """后备意图识别 - 简单的关键词匹配"""
     user_input_lower = user_input.lower()
 
     # 图像相关关键词

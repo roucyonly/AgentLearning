@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
-from app.api.dependencies import get_db, get_task_service, get_conversation_service
+from app.api.dependencies import get_db, get_task_service, get_conversation_service, init_agent_services
 from app.schemas.conversation import ChatRequest, ChatResponse
-from app.agent.graph import run_agent, init_agent_services
+from app.agent.graph import run_agent
 from app.services.task_service import TaskService
 from app.services.conversation import ConversationService
 
