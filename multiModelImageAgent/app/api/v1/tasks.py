@@ -1,10 +1,38 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import Optional
+from typing import List, Optional
 from app.api.dependencies import get_db, get_task_service
 from app.schemas.task import TaskCreate, TaskResponse, TaskStatus
 from app.services.task_service import TaskService
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
+
+
+@router.get("/", response_model=List[TaskResponse])
+async def list_tasks(
+    skip: int = 0,
+    limit: int = 20,
+    status_filter: Optional[str] = None,
+    task_service: TaskService = Depends(get_task_service)
+):
+    """获取任务列表（支持分页）"""
+    status = TaskStatus(status_filter) if status_filter else None
+    tasks = await task_service.list_tasks(status=status, skip=skip, limit=limit)
+
+    return [
+        TaskResponse(
+            id=task.id,
+            type=task.type.value,
+            provider_id=task.provider_id,
+            status=task.status.value,
+            input_params=task.input_params,
+            output=task.output,
+            error_message=task.error_message,
+            created_at=task.created_at,
+            updated_at=task.updated_at,
+            completed_at=task.output.get("completed_at") if task.output else None
+        )
+        for task in tasks
+    ]
 
 
 @router.post("/", response_model=TaskResponse)

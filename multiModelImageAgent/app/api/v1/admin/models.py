@@ -143,7 +143,9 @@ async def update_model(
         )
 
     update_data = request.model_dump(exclude_unset=True)
-    model = await repo.update(model_id, update_data)
+    await repo.update(model_id, update_data)
+    await db.commit()
+    model = await repo.get(model_id)
 
     return ModelProviderResponse(
         id=model.id,
@@ -199,7 +201,9 @@ async def toggle_model(
             detail=f"模型不存在: {model_id}"
         )
 
-    updated = await repo.update(model_id, {"is_enabled": not model.is_enabled})
+    await repo.update(model_id, {"is_enabled": not model.is_enabled})
+    await db.commit()
+    updated = await repo.get(model_id)
 
     return {
         "model_id": model_id,

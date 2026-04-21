@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List, Union
 from datetime import datetime
 
 
@@ -7,7 +7,7 @@ class ModelProviderBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=50)
     display_name: str = Field(..., min_length=1, max_length=100)
     description: Optional[str] = None
-    provider_type: str = Field(..., pattern="^(image|video|audio|text)$")
+    provider_type: str = Field(..., pattern="^(image|video|audio|text|llm)$")
     category: Optional[str] = None
 
 
@@ -22,8 +22,12 @@ class ModelProviderCreate(ModelProviderBase):
 class ModelProviderUpdate(BaseModel):
     display_name: Optional[str] = None
     description: Optional[str] = None
+    provider_type: Optional[str] = None
+    category: Optional[str] = None
+    api_endpoint: Optional[str] = None
     is_enabled: Optional[bool] = None
     priority: Optional[int] = None
+    is_available: Optional[bool] = None
 
 
 class ModelProviderResponse(ModelProviderBase):
@@ -34,7 +38,7 @@ class ModelProviderResponse(ModelProviderBase):
     is_enabled: bool
     is_available: bool
     priority: int
-    capabilities: Dict[str, Any] = {}
+    capabilities: Union[Dict[str, Any], List[Any]] = {}
     cost_per_request: Optional[float] = None
     cost_per_image: Optional[float] = None
     rate_limit: Optional[int] = None

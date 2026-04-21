@@ -77,7 +77,7 @@ let models = [];
 
 async function loadModels() {
     try {
-        const response = await fetch('/api/v1/admin/models/');
+        const response = await fetch('/api/admin/models/');
         models = await response.json();
         renderModels();
     } catch (error) {
@@ -169,7 +169,7 @@ async function submitModel(event) {
     };
 
     try {
-        const url = id ? `/api/v1/admin/models/${id}` : '/api/v1/admin/models/';
+        const url = id ? `/api/admin/models/${id}` : '/api/admin/models/';
         const method = id ? 'PUT' : 'POST';
 
         await fetch(url, {
@@ -187,7 +187,7 @@ async function submitModel(event) {
 
 async function toggleModel(id) {
     try {
-        await fetch(`/api/v1/admin/models/${id}/toggle`, { method: 'PATCH' });
+        await fetch(`/api/admin/models/${id}/toggle`, { method: 'PATCH' });
         loadModels();
     } catch (error) {
         alert('操作失败: ' + error.message);
@@ -196,7 +196,7 @@ async function toggleModel(id) {
 
 async function testModel(id) {
     try {
-        const response = await fetch(`/api/v1/admin/models/${id}/test`, { method: 'POST' });
+        const response = await fetch(`/api/admin/models/${id}/test`, { method: 'POST' });
         const data = await response.json();
         alert(data.message || '测试' + (data.status === 'success' ? '成功' : '失败'));
     } catch (error) {
@@ -208,7 +208,7 @@ async function deleteModel(id) {
     if (!confirm('确定要删除这个模型吗？')) return;
 
     try {
-        await fetch(`/api/v1/admin/models/${id}`, { method: 'DELETE' });
+        await fetch(`/api/admin/models/${id}`, { method: 'DELETE' });
         loadModels();
     } catch (error) {
         alert('删除失败: ' + error.message);

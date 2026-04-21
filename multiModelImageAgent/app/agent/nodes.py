@@ -14,7 +14,8 @@ async def intent_node(state: AgentState) -> AgentState:
     user_input = last_message.content if hasattr(last_message, 'content') else str(last_message)
 
     # 使用豆包LLM进行意图识别
-    intent = await _analyze_intent_with_llm(user_input)
+    intent = "unknown"
+    # await _analyze_intent_with_llm(user_input)
 
     state["user_intent"] = intent
 
@@ -39,7 +40,7 @@ async def _analyze_intent_with_llm(user_input: str) -> str:
         )
 
         response = await client.responses.create(
-            model="doubao-seed",
+            model="doubao-seed-1-8-251228",
             input=[
                 {
                     "role": "user",
@@ -57,13 +58,10 @@ async def _analyze_intent_with_llm(user_input: str) -> str:
                         }
                     ]
                 }
-            ],
-            extra={
-                "intent": "intent_recognition"
-            }
+            ] 
         )
-
-        intent = response.output[0].content[0].text.strip().lower()
+        
+        intent = response.output[0].content[0].text.strip().lower() if response.output[0].content else "unknown"
 
         # 验证返回的意图是否有效
         valid_intents = ["image_generation", "video_generation", "unknown"]
@@ -118,14 +116,14 @@ async def planner_node(state: AgentState) -> AgentState:
         task_type = TaskType.IMAGE
         default_provider = "doubao_seedream"
 
-    # 构建任务参数
-    task_params = {
+    # 构建用户输入参数（只需要用户的原始输入，ModelExecutor会自动处理参数映射和默认值）
+    user_params = {
         "prompt": user_input,
-        "type": task_type.value,
     }
 
     state["selected_provider"] = default_provider
-    state["task_params"] = task_params
+    state["task_type"] = task_type
+    state["user_params"] = user_params
 
     return state
 
@@ -133,48 +131,49 @@ async def planner_node(state: AgentState) -> AgentState:
 async def executor_node(state: AgentState) -> AgentState:
     """执行节点 - 调用 API"""
     provider_name = state.get("selected_provider")
-    task_params = state.get("task_params", {})
-    async_mode = state.get("async_mode", False)
+    user_params = state.get("user_params", {})
 
-    if not provider_name or not task_params:
-        state["error"] = {"message": "Missing provider or task params"}
+    if not provider_name or not user_params:
+        state["error"] = {"message": "Missing provider or params"}
         return state
 
     try:
-        from app.agent.graph import get_task_service
+        from app.services.model_executor import get_model_executor
+        from app.utils.crypto import decrypt_api_key, generate_kling_token
+        from app.config import get_settings
+        from app.repositories.api_key import ApiKeyRepository
+        from app.repositories.model_provider import ModelProviderRepository
+        from app.db.session import AsyncSessionLocal
 
-        task_service = get_task_service()
-        if not task_service:
-            state["error"] = {"message": "Task service not initialized"}
-            return state
+        executor = get_model_executor()
+        settings = get_settings()
 
-        task_type_str = task_params.get("type", "image")
-        task_type = TaskType(task_type_str)
+        # 尝试从数据库获取 API Key
+        api_key = None
+        async with AsyncSessionLocal() as session:
+            # 先获取provider_id
+            provider_repo = ModelProviderRepository(session)
+            provider = await provider_repo.get_by_name(provider_name)
+            if provider:
+                api_key_repo = ApiKeyRepository(session)
+                api_key_record = await api_key_repo.get_active_key(provider.id)
+                if api_key_record:
+                    api_key = decrypt_api_key(api_key_record.api_key_encrypted, settings.ENCRYPTION_KEY)
 
-        # 创建任务
-        task = await task_service.create_task(
-            task_type=task_type,
-            input_params=task_params,
-            provider_name=provider_name
-        )
+        # 如果数据库没有，使用配置中的key
+        if not api_key:
+            if provider_name == "doubao_seedream":
+                api_key = settings.ARK_API_KEY
+            elif provider_name == "kling":
+                api_key = generate_kling_token(settings.KLING_ACCESS_KEY, settings.KLING_SECRET_KEY)
+            else:
+                state["error"] = {"message": f"No API key configured for: {provider_name}"}
+                return state
 
-        state["task_id"] = task.id
+        # 使用 ModelExecutor 执行（它会处理参数映射和默认值）
+        output = await executor.execute_model(provider_name, user_params, api_key)
 
-        # 异步模式：只创建任务，不等待执行
-        if async_mode:
-            state["api_response"] = {"status": "pending", "task_id": task.id}
-            return state
-
-        # 同步模式：等待任务完成
-        result_task = await task_service.execute_task(task.id)
-
-        if result_task.status.value == "completed":
-            state["api_response"] = result_task.output
-        else:
-            state["error"] = {
-                "message": result_task.error_message or "Task failed",
-                "status": result_task.status.value
-            }
+        state["api_response"] = output
 
     except Exception as e:
         state["error"] = {"message": str(e)}
