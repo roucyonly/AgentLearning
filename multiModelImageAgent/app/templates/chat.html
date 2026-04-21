@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}对话 - MultiModel Agent{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-lg p-6">
+    <h1 class="text-2xl font-bold mb-4">AI 对话</h1>
+
+    <!-- 聊天容器 -->
+    <div id="chat-container" class="chat-container overflow-y-auto border rounded-lg p-4 mb-4 space-y-4">
+        <div class="text-center text-gray-500 py-8">
+            <p class="text-lg">👋 你好！我是 AI 图像生成助手</p>
+            <p class="text-sm mt-2">你可以告诉我"生成一张日落图片"或"帮我画一只可爱的猫"</p>
+        </div>
+    </div>
+
+    <!-- 输入区域 -->
+    <div class="flex gap-4">
+        <input type="text" id="message-input"
+            class="flex-1 border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="输入你的问题或请求..."
+            onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()"
+            class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+            发送
+        </button>
+    </div>
+
+    <!-- 配置选项 -->
+    <div class="mt-4 flex gap-4 text-sm text-gray-600">
+        <label class="flex items-center gap-2">
+            <input type="checkbox" id="async-mode" class="rounded">
+            <span>异步模式（立即返回）</span>
+        </label>
+    </div>
+</div>
+
+<script>
+const chatContainer = document.getElementById('chat-container');
+const messageInput = document.getElementById('message-input');
+let conversationId = null;
+
+function handleKeyPress(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+    }
+}
+
+function addMessage(content, type, isLoading = false) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `message-${type} p-4 rounded-lg max-w-[80%] ${type === 'user' ? 'ml-auto' : ''}`;
+
+    if (isLoading) {
+        msgDiv.className = 'message-loading p-4 rounded-lg max-w-[80%]';
+        msgDiv.innerHTML = '<span class="animate-pulse">⏳ ' + content + '</span>';
+    } else {
+        msgDiv.textContent = content;
+    }
+
+    chatContainer.appendChild(msgDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+async function sendMessage() {
+    const message = messageInput.value.trim();
+    if (!message) return;
+
+    // 添加用户消息
+    addMessage(message, 'user');
+    messageInput.value = '';
+
+    // 添加加载状态
+    const asyncMode = document.getElementById('async-mode').checked;
+    const loadingMsg = asyncMode ? '任务已创建，正在后台处理...' : '正在处理...';
+    const loadingDiv = addMessage(loadingMsg, 'assistant', true);
+
+    try {
+        const endpoint = asyncMode ? '/api/v1/chat/async' : '/api/v1/chat/';
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: message,
+                conversation_id: conversationId,
+                user_id: 'web_user'
+            })
+        });
+
+        const data = await response.json();
+
+        // 保存 conversation_id
+        if (data.conversation_id) {
+            conversationId = data.conversation_id;
+        }
+
+        // 更新加载消息
+        loadingDiv.innerHTML = data.response || '处理完成';
+
+    } catch (error) {
+        loadingDiv.innerHTML = '❌ 发生错误: ' + error.message;
+        loadingDiv.className = 'message-assistant p-4 rounded-lg max-w-[80%] text-red-600';
+    }
+}
+</script>
+{% endblock %}

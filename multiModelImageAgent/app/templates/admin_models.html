@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}模型管理 - MultiModel Agent{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">模型配置管理</h1>
+        <button onclick="showCreateModal()"
+            class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+            + 添加模型
+        </button>
+    </div>
+
+    <!-- 模型列表 -->
+    <div id="models-list" class="space-y-4">
+        <div class="text-center py-8 text-gray-500">加载中...</div>
+    </div>
+</div>
+
+<!-- 创建/编辑模态框 -->
+<div id="model-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <h2 id="modal-title" class="text-xl font-bold mb-4">添加模型</h2>
+        <form id="model-form" onsubmit="submitModel(event)">
+            <input type="hidden" id="model-id">
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">名称</label>
+                    <input type="text" id="model-name" required class="mt-1 block w-full border rounded-md px-3 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">显示名称</label>
+                    <input type="text" id="model-display-name" required class="mt-1 block w-full border rounded-md px-3 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">类型</label>
+                    <select id="model-type" required class="mt-1 block w-full border rounded-md px-3 py-2">
+                        <option value="image">图像生成</option>
+                        <option value="video">视频生成</option>
+                        <option value="audio">音频生成</option>
+                        <option value="text">文本处理</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">分类</label>
+                    <input type="text" id="model-category" class="mt-1 block w-full border rounded-md px-3 py-2">
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700">API 端点</label>
+                <input type="text" id="model-endpoint" required class="mt-1 block w-full border rounded-md px-3 py-2">
+            </div>
+
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700">描述</label>
+                <textarea id="model-description" rows="2" class="mt-1 block w-full border rounded-md px-3 py-2"></textarea>
+            </div>
+
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700">优先级</label>
+                <input type="number" id="model-priority" value="0" class="mt-1 block w-full border rounded-md px-3 py-2">
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="hideModal()" class="px-4 py-2 border rounded-lg hover:bg-gray-100">取消</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+let models = [];
+
+async function loadModels() {
+    try {
+        const response = await fetch('/api/v1/admin/models/');
+        models = await response.json();
+        renderModels();
+    } catch (error) {
+        document.getElementById('models-list').innerHTML = '<div class="text-red-500">加载失败: ' + error.message + '</div>';
+    }
+}
+
+function renderModels() {
+    const container = document.getElementById('models-list');
+
+    if (models.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-gray-500">暂无模型配置，点击添加按钮创建</div>';
+        return;
+    }
+
+    container.innerHTML = models.map(model => `
+        <div class="border rounded-lg p-4 hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="font-bold text-lg">${model.display_name}</h3>
+                    <p class="text-sm text-gray-500">${model.name} | ${model.provider_type}</p>
+                    <p class="text-sm text-gray-600 mt-1">${model.description || ''}</p>
+                    <p class="text-xs text-gray-400 mt-2">API: ${model.api_endpoint}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-1 text-xs rounded ${model.is_enabled ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}">
+                        ${model.is_enabled ? '已启用' : '已禁用'}
+                    </span>
+                    <span class="px-2 py-1 text-xs rounded ${model.is_available ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}">
+                        ${model.is_available ? '可用' : '不可用'}
+                    </span>
+                </div>
+            </div>
+            <div class="mt-4 flex gap-2">
+                <button onclick="editModel('${model.id}')" class="text-blue-600 hover:underline text-sm">编辑</button>
+                <button onclick="toggleModel('${model.id}')" class="text-gray-600 hover:underline text-sm">
+                    ${model.is_enabled ? '禁用' : '启用'}
+                </button>
+                <button onclick="testModel('${model.id}')" class="text-green-600 hover:underline text-sm">测试</button>
+                <button onclick="deleteModel('${model.id}')" class="text-red-600 hover:underline text-sm">删除</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function showCreateModal() {
+    document.getElementById('modal-title').textContent = '添加模型';
+    document.getElementById('model-form').reset();
+    document.getElementById('model-id').value = '';
+    document.getElementById('model-modal').classList.remove('hidden');
+    document.getElementById('model-modal').classList.add('flex');
+}
+
+function hideModal() {
+    document.getElementById('model-modal').classList.add('hidden');
+    document.getElementById('model-modal').classList.remove('flex');
+}
+
+function editModel(id) {
+    const model = models.find(m => m.id === id);
+    if (!model) return;
+
+    document.getElementById('modal-title').textContent = '编辑模型';
+    document.getElementById('model-id').value = model.id;
+    document.getElementById('model-name').value = model.name;
+    document.getElementById('model-display-name').value = model.display_name;
+    document.getElementById('model-type').value = model.provider_type;
+    document.getElementById('model-category').value = model.category || '';
+    document.getElementById('model-endpoint').value = model.api_endpoint;
+    document.getElementById('model-description').value = model.description || '';
+    document.getElementById('model-priority').value = model.priority;
+
+    document.getElementById('model-modal').classList.remove('hidden');
+    document.getElementById('model-modal').classList.add('flex');
+}
+
+async function submitModel(event) {
+    event.preventDefault();
+
+    const id = document.getElementById('model-id').value;
+    const data = {
+        name: document.getElementById('model-name').value,
+        display_name: document.getElementById('model-display-name').value,
+        provider_type: document.getElementById('model-type').value,
+        category: document.getElementById('model-category').value,
+        api_endpoint: document.getElementById('model-endpoint').value,
+        description: document.getElementById('model-description').value,
+        priority: parseInt(document.getElementById('model-priority').value)
+    };
+
+    try {
+        const url = id ? `/api/v1/admin/models/${id}` : '/api/v1/admin/models/';
+        const method = id ? 'PUT' : 'POST';
+
+        await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        hideModal();
+        loadModels();
+    } catch (error) {
+        alert('保存失败: ' + error.message);
+    }
+}
+
+async function toggleModel(id) {
+    try {
+        await fetch(`/api/v1/admin/models/${id}/toggle`, { method: 'PATCH' });
+        loadModels();
+    } catch (error) {
+        alert('操作失败: ' + error.message);
+    }
+}
+
+async function testModel(id) {
+    try {
+        const response = await fetch(`/api/v1/admin/models/${id}/test`, { method: 'POST' });
+        const data = await response.json();
+        alert(data.message || '测试' + (data.status === 'success' ? '成功' : '失败'));
+    } catch (error) {
+        alert('测试失败: ' + error.message);
+    }
+}
+
+async function deleteModel(id) {
+    if (!confirm('确定要删除这个模型吗？')) return;
+
+    try {
+        await fetch(`/api/v1/admin/models/${id}`, { method: 'DELETE' });
+        loadModels();
+    } catch (error) {
+        alert('删除失败: ' + error.message);
+    }
+}
+
+// 页面加载时获取模型
+loadModels();
+</script>
+{% endblock %}
