@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
 
     # Volcengine Doubao API (用于图像生成)
-    ARK_API_KEY: str = "ark-8301cef2-38dc-4506-b7d3-39a4128f904f-c6207"
+    ARK_API_KEY: str = ""
 
     # Kling AI API (用于图像生成)
     KLING_ACCESS_KEY: str = ""
