@@ -32,9 +32,20 @@ class Settings(BaseSettings):
     siliconflow_api_key: str = ""
 
     # 数据库
-    database_url: str = "postgresql://user:password@localhost:5432/teacher_avatar"
+    database_url: str = "sqlite:///./teacher_avatar.db"  # 默认使用SQLite
+    # PostgreSQL配置 (如需使用PostgreSQL,请修改上面的database_url为:)
+    # database_url: str = "postgresql://user:password@localhost:5432/teacher_avatar"
+
+    # 向量数据库选择
+    vector_store_type: Literal["milvus", "chroma"] = "chroma"  # 默认使用Chroma
+
+    # Milvus配置 (仅当vector_store_type="milvus"时需要)
     milvus_host: str = "localhost"
     milvus_port: int = 19530
+
+    # Chroma配置 (仅当vector_store_type="chroma"时需要,已内置默认值)
+    chroma_persist_dir: str = "./chroma_db"
+
     redis_url: str = "redis://localhost:6379/0"
 
     # 安全

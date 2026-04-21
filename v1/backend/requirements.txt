@@ -2,8 +2,15 @@ fastapi==0.109.0
 uvicorn[standard]==0.27.0
 sqlalchemy==2.0.25
 alembic==1.13.1
-psycopg2-binary==2.9.9
-pymilvus==2.3.4
+# PostgreSQL (可选,如果使用PostgreSQL请取消注释)
+# psycopg2-binary==2.9.9
+# SQLite (默认,已包含在Python标准库中)
+
+# 向量数据库 (二选一)
+# Milvus (可选,需要Docker)
+# pymilvus==2.3.4
+# Chroma (推荐,轻量级)
+chromadb==0.4.22
 langchain==0.1.6
 langchain-community==0.0.19
 langchain-openai==0.0.5

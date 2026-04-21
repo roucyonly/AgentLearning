@@ -69,9 +69,70 @@ X-Trace-Id: 550e8400-e29b-41d4-a716-446655440000
 
 ---
 
-### 🎯 方案 2: 完整功能体验（需要数据库）
+### 🎯 方案 2A: 轻量级完整功能体验（SQLite + Chroma）⭐ 推荐
 
-**适合**: 想体验完整功能，包括 RAG 对话
+**适合**: 想体验完整功能,包括 RAG 对话,但不想安装 Docker 和 PostgreSQL
+
+#### 前置条件
+
+只需要安装 Python,无需额外数据库!
+
+#### 1. 安装依赖
+
+```bash
+pip install fastapi uvicorn sqlalchemy pydantic pydantic-settings python-jose passlib python-multipart python-dotenv
+pip install langchain langchain-openai langchain-core langchain-community
+pip install bcrypt email-validator chromadb tiktoken
+```
+
+#### 2. 配置环境变量
+
+创建 `.env` 文件：
+```bash
+# 使用 SQLite (无需安装)
+DATABASE_URL=sqlite:///./teacher_avatar.db
+
+# 使用 Chroma 向量库 (无需安装,自动本地存储)
+VECTOR_STORE_TYPE=chroma
+
+# LLM 配置
+OPENAI_API_KEY=sk-你的真实key
+# 或者使用其他 LLM:
+# ACTIVE_LLM=deepseek
+# DEEPSEEK_API_KEY=你的key
+```
+
+#### 3. 初始化并启动
+
+```bash
+cd D:\AgentLearning\backend
+
+# 初始化数据库 (自动创建SQLite数据库)
+python init_db.py
+
+# 启动服务
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+#### 4. 测试完整流程
+
+访问 http://localhost:8000/docs 测试:
+- 用户注册/登录
+- 文件上传和 RAG 对话
+- 所有功能完整可用!
+
+#### 优势
+✅ **零额外依赖**: 无需 Docker、PostgreSQL
+✅ **一键启动**: 自动创建本地数据库
+✅ **数据持久化**: SQLite 和 Chroma 数据都保存在本地
+✅ **完整功能**: 与生产版本功能完全一致
+✅ **开发友好**: 适合本地开发和测试
+
+---
+
+### 🎯 方案 2B: 生产级完整功能体验（PostgreSQL + Milvus）
+
+**适合**: 准备部署到生产环境,需要高性能数据库
 
 #### 前置条件
 
@@ -90,6 +151,9 @@ X-Trace-Id: 550e8400-e29b-41d4-a716-446655440000
    编辑 `.env` 文件：
    ```bash
    DATABASE_URL=postgresql://postgres:你的密码@localhost:5432/teacher_avatar
+   VECTOR_STORE_TYPE=milvus
+   MILVUS_HOST=localhost
+   MILVUS_PORT=19530
    OPENAI_API_KEY=sk-你的真实key
    ```
 
