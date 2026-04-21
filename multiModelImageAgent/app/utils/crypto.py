@@ -1,6 +1,7 @@
 from cryptography.fernet import Fernet
 import base64
 import hashlib
+import time
 
 
 def get_encryption_key(secret: str) -> bytes:
@@ -25,3 +26,20 @@ def decrypt_api_key(encrypted: str, secret: str) -> str:
 def hash_api_key(api_key: str) -> str:
     """哈希 API Key 用于验证"""
     return hashlib.sha256(api_key.encode()).hexdigest()
+
+
+def generate_kling_token(access_key: str, secret_key: str) -> str:
+    """生成 Kling API 的 JWT token"""
+    import jwt
+
+    headers = {
+        "alg": "HS256",
+        "typ": "JWT"
+    }
+    payload = {
+        "iss": access_key,
+        "exp": int(time.time()) + 1800,  # 30 minutes
+        "nbf": int(time.time()) - 5  # 5 seconds ago
+    }
+    token = jwt.encode(payload, secret_key, headers=headers)
+    return token

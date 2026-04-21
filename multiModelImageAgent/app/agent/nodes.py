@@ -110,13 +110,13 @@ async def planner_node(state: AgentState) -> AgentState:
     # 根据意图确定任务类型和 provider
     if intent == "image_generation":
         task_type = TaskType.IMAGE
-        default_provider = "dalle"
+        default_provider = "doubao_seedream"
     elif intent == "video_generation":
         task_type = TaskType.VIDEO
         default_provider = "runway"
     else:
         task_type = TaskType.IMAGE
-        default_provider = "dalle"
+        default_provider = "doubao_seedream"
 
     # 构建任务参数
     task_params = {

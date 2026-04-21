@@ -8,55 +8,6 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
-DALLE_CONFIG = {
-    "name": "dalle",
-    "display_name": "DALL-E 3",
-    "description": "OpenAI's DALL-E 3 image generation model",
-    "provider_type": "image",
-    "category": "openai",
-    "api_endpoint": "https://api.openai.com/v1/images/generations",
-    "api_version": "v1",
-    "http_method": "POST",
-    "auth_config": {
-        "type": "bearer",
-        "key_field": "Authorization"
-    },
-    "request_config": {
-        "timeout": 60,
-        "retry_enabled": True
-    },
-    "parameter_mapping": {
-        "prompt": "prompt",
-        "size": "size",
-        "quality": "quality",
-        "style": "style",
-        "n": "n"
-    },
-    "parameter_schema": {
-        "prompt": {"type": "string", "required": True},
-        "size": {
-            "type": "string",
-            "required": False,
-            "enum": ["1024x1024", "1792x1024", "1024x1792"]
-        },
-        "quality": {
-            "type": "string",
-            "required": False,
-            "enum": ["standard", "hd"]
-        }
-    },
-    "response_mapping": {
-        "url": "data.0.url",
-        "revised_prompt": "data.0.revised_prompt"
-    },
-    "is_enabled": True,
-    "is_available": True,
-    "priority": 10,
-    "capabilities": ["text_to_image", "style_control", "size_control"],
-    "rate_limit": 50,
-    "max_concurrent": 10
-}
-
 DOUBAO_CONFIG = {
     "name": "doubao",
     "display_name": "Doubao LLM",
@@ -91,31 +42,107 @@ DOUBAO_CONFIG = {
     "max_concurrent": 5
 }
 
+DOUBAO_SEEDREAM_CONFIG = {
+    "name": "doubao_seedream",
+    "display_name": "Doubao Seedream",
+    "description": "Volcengine Doubao Seedream image generation model",
+    "provider_type": "image",
+    "category": "volcengine",
+    "api_endpoint": "https://ark.cn-beijing.volces.com/api/v3/images/generations",
+    "api_version": "v3",
+    "http_method": "POST",
+    "auth_config": {
+        "type": "bearer",
+        "key_field": "Authorization"
+    },
+    "request_config": {
+        "timeout": 120,
+        "retry_enabled": True
+    },
+    "parameter_mapping": {
+        "prompt": "prompt",
+        "model": "model",
+        "size": "size",
+        "image": "image",
+        "sequential_image_generation": "sequential_image_generation",
+        "sequential_image_generation_options": "sequential_image_generation_options",
+        "output_format": "output_format",
+        "watermark": "watermark"
+    },
+    "parameter_schema": {
+        "prompt": {"type": "string", "required": True},
+        "model": {"type": "string", "required": True, "default": "doubao-seedream-5-0-260128"},
+        "size": {"type": "string", "required": False, "enum": ["1K", "2K", "4K"]},
+        "image": {"type": "array", "required": False},
+        "sequential_image_generation": {"type": "string", "required": False},
+        "output_format": {"type": "string", "required": False, "enum": ["png", "jpg"]},
+        "watermark": {"type": "boolean", "required": False, "default": False}
+    },
+    "response_mapping": {
+        "images": "data",
+        "image_url": "data.0.url",
+        "revised_prompt": "data.0.revised_prompt"
+    },
+    "is_enabled": True,
+    "is_available": True,
+    "priority": 5,
+    "capabilities": ["text_to_image", "image_to_image", "sequential_generation", "style_control"],
+    "rate_limit": 20,
+    "max_concurrent": 3
+}
 
-async def seed_dalle():
-    """Add DALL-E 3 configuration"""
-    from app.db.session import AsyncSessionLocal
-    from app.models.model_provider import ModelProvider
-    from sqlalchemy import select
-
-    async with AsyncSessionLocal() as session:
-        # Check if exists
-        result = await session.execute(
-            select(ModelProvider).where(ModelProvider.name == "dalle")
-        )
-        existing = result.scalar_one_or_none()
-
-        if not existing:
-            provider = ModelProvider(**DALLE_CONFIG)
-            session.add(provider)
-            await session.commit()
-            print("[OK] DALL-E 3 configuration added")
-        else:
-            print("[INFO] DALL-E 3 configuration already exists")
+KLING_CONFIG = {
+    "name": "kling",
+    "display_name": "Kling AI",
+    "description": "Kling AI image generation model",
+    "provider_type": "image",
+    "category": "kling",
+    "api_endpoint": "https://api-beijing.klingai.com/v1/images/generations",
+    "api_version": "v1",
+    "http_method": "POST",
+    "auth_config": {
+        "type": "bearer",
+        "key_field": "Authorization"
+    },
+    "request_config": {
+        "timeout": 120,
+        "retry_enabled": True
+    },
+    "parameter_mapping": {
+        "prompt": "prompt",
+        "model_name": "model_name",
+        "negative_prompt": "negative_prompt",
+        "image": "image",
+        "n": "n",
+        "external_task_id": "external_task_id",
+        "callback_url": "callback_url"
+    },
+    "parameter_schema": {
+        "prompt": {"type": "string", "required": True},
+        "model_name": {"type": "string", "required": True, "default": "kling-v2-1"},
+        "negative_prompt": {"type": "string", "required": False},
+        "image": {"type": "string", "required": False},
+        "n": {"type": "integer", "required": False, "default": 1},
+        "external_task_id": {"type": "string", "required": False},
+        "callback_url": {"type": "string", "required": False}
+    },
+    "response_mapping": {
+        "task_id": "task_id",
+        "task_status": "task_status",
+        "images": "data.images",
+        "image_url": "data.images.0.url"
+    },
+    "is_enabled": True,
+    "is_available": True,
+    "priority": 10,
+    "capabilities": ["text_to_image", "image_to_image", "negative_prompt"],
+    "rate_limit": 20,
+    "max_concurrent": 3
+}
 
 
 async def seed_doubao():
-    """Add Doubao configuration"""
+    """Add Doubao LLM configuration for intent recognition"""
     from app.db.session import AsyncSessionLocal
     from app.models.model_provider import ModelProvider
     from sqlalchemy import select
@@ -130,9 +157,51 @@ async def seed_doubao():
             provider = ModelProvider(**DOUBAO_CONFIG)
             session.add(provider)
             await session.commit()
-            print("[OK] Doubao configuration added")
+            print("[OK] Doubao LLM configuration added")
         else:
-            print("[INFO] Doubao configuration already exists")
+            print("[INFO] Doubao LLM configuration already exists")
+
+
+async def seed_doubao_seedream():
+    """Add Doubao Seedream configuration for image generation"""
+    from app.db.session import AsyncSessionLocal
+    from app.models.model_provider import ModelProvider
+    from sqlalchemy import select
+
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            select(ModelProvider).where(ModelProvider.name == "doubao_seedream")
+        )
+        existing = result.scalar_one_or_none()
+
+        if not existing:
+            provider = ModelProvider(**DOUBAO_SEEDREAM_CONFIG)
+            session.add(provider)
+            await session.commit()
+            print("[OK] Doubao Seedream configuration added")
+        else:
+            print("[INFO] Doubao Seedream configuration already exists")
+
+
+async def seed_kling():
+    """Add Kling configuration for image generation"""
+    from app.db.session import AsyncSessionLocal
+    from app.models.model_provider import ModelProvider
+    from sqlalchemy import select
+
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            select(ModelProvider).where(ModelProvider.name == "kling")
+        )
+        existing = result.scalar_one_or_none()
+
+        if not existing:
+            provider = ModelProvider(**KLING_CONFIG)
+            session.add(provider)
+            await session.commit()
+            print("[OK] Kling configuration added")
+        else:
+            print("[INFO] Kling configuration already exists")
 
 
 async def seed_error_configs(provider_id: str):
@@ -228,8 +297,9 @@ async def seed_error_messages(provider_id: str):
 async def main():
     print("Starting seed data...")
 
-    await seed_dalle()
     await seed_doubao()
+    await seed_doubao_seedream()
+    await seed_kling()
 
     # Get provider_id and add error configs
     from app.db.session import AsyncSessionLocal
@@ -237,18 +307,27 @@ async def main():
     from sqlalchemy import select
 
     async with AsyncSessionLocal() as session:
-        # Seed error configs for DALL-E
+        # Seed error configs for Doubao LLM
         result = await session.execute(
-            select(ModelProvider).where(ModelProvider.name == "dalle")
+            select(ModelProvider).where(ModelProvider.name == "doubao")
         )
         provider = result.scalar_one_or_none()
         if provider:
             await seed_error_configs(provider.id)
             await seed_error_messages(provider.id)
 
-        # Seed error configs for Doubao
+        # Seed error configs for Doubao Seedream
         result = await session.execute(
-            select(ModelProvider).where(ModelProvider.name == "doubao")
+            select(ModelProvider).where(ModelProvider.name == "doubao_seedream")
+        )
+        provider = result.scalar_one_or_none()
+        if provider:
+            await seed_error_configs(provider.id)
+            await seed_error_messages(provider.id)
+
+        # Seed error configs for Kling
+        result = await session.execute(
+            select(ModelProvider).where(ModelProvider.name == "kling")
         )
         provider = result.scalar_one_or_none()
         if provider:

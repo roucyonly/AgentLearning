@@ -85,10 +85,17 @@ class TaskService:
                 raise ValueError(f"No active API key for provider: {task.provider_id}")
 
             # 获取解密的 API Key（这里需要 crypto 模块）
-            from app.utils.crypto import decrypt_api_key
+            from app.utils.crypto import decrypt_api_key, generate_kling_token
             from app.config import get_settings
             settings = get_settings()
             api_key = decrypt_api_key(api_key_record.api_key_encrypted, settings.ENCRYPTION_KEY)
+
+            # Kling 使用 accesskey/secretkey 生成 JWT token
+            if task.provider.category == "kling":
+                api_key = generate_kling_token(
+                    settings.KLING_ACCESS_KEY,
+                    settings.KLING_SECRET_KEY
+                )
 
             # 创建适配器
             adapter = GenericAPIAdapter(task.provider, self.error_handler)
