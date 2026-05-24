@@ -285,7 +285,7 @@
       "platform": "bilibili",
       "url": "https://www.bilibili.com/video/BV1inZZBTEqx/",
       "public_title": "因自己爱吃，13万开泡菜店！“天才选址”顾客进不来！每天亏250块",
-      "source_level": "public_metadata_only"
+      "source_level": "public_metadata_plus_user_supplement"
     },
     "mvp_scenario": "opened_losing_reverse_pre_opening_lesson",
     "business_stage": "opened_losing_as_pre_opening_lesson",
@@ -300,40 +300,172 @@
       "公开标题显示投入约 13 万。",
       "公开标题显示每天亏约 250 元。",
       "公开简介显示问题集中在选址，顾客进不来。",
-      "公开简介提到全负债加盟开店。"
+      "公开简介提到全负债加盟开店。",
+      "位置在重庆黔江县城城区。",
+      "用户之前没做过餐饮。",
+      "面积 30 多平方。",
+      "人工为用户一人在店，表格按 150 元/天计人工。",
+      "加盟费 5 万，调料费 1 万，装修设备食材约 6 万。",
+      "店铺所在位置是新楼盘。",
+      "用户没有租对面商场 8 万/年的位置，也没有租同侧靠近街道的位置，最终选了尾部差位置。",
+      "用户花 1500 请选址老师；老师一开始选大学附近，后来选附近靠近街道的位置，但用户最终自己选了现在的位置。"
     ],
     "finance_indicators": {
       "mode": "operating_case_for_pre_opening_reverse_check",
       "currency": "CNY",
-      "opening_investment_total": {
+      "opening_investment_title_approx": {
         "value": 130000,
         "source": "公开视频标题：13万开泡菜店"
       },
+      "opening_investment_known_detail_sum": {
+        "value": 120000,
+        "formula": "franchise_fee + seasoning_fee + decoration_equipment_material",
+        "source": "用户补充：加盟费5万，调料费1万，装修设备食材6万"
+      },
+      "franchise_fee": {
+        "value": 50000,
+        "source": "用户补充"
+      },
+      "seasoning_fee": {
+        "value": 10000,
+        "source": "用户补充：1万调料费"
+      },
+      "decoration_equipment_material": {
+        "value": 60000,
+        "source": "用户补充：装修设备食材花费6万"
+      },
+      "area_sqm_range": {
+        "value": [30, 39],
+        "source": "用户补充：面积30多平方"
+      },
+      "current_daily_revenue": {
+        "value": 150,
+        "source": "截图表格：营业额/天 150"
+      },
+      "gross_margin_rate": {
+        "value": 60,
+        "unit": "percent",
+        "source": "截图表格：毛利率 0.6"
+      },
+      "daily_gross_profit": {
+        "value": 90,
+        "formula": "current_daily_revenue * (gross_margin_rate / 100)",
+        "source": "截图表格：毛利 90"
+      },
+      "daily_rent": {
+        "value": 116,
+        "source": "截图表格：房租/天 116"
+      },
+      "monthly_rent_estimated": {
+        "value": 3480,
+        "formula": "daily_rent * 30"
+      },
+      "daily_staff_cost": {
+        "value": 150,
+        "source": "截图表格：人工/天 150；用户一人在店，按机会工资计"
+      },
+      "monthly_staff_cost_estimated": {
+        "value": 4500,
+        "formula": "daily_staff_cost * 30"
+      },
+      "daily_utility_property_cost": {
+        "value": 80,
+        "source": "截图表格：水/电/物业 80"
+      },
+      "monthly_utility_property_cost_estimated": {
+        "value": 2400,
+        "formula": "daily_utility_property_cost * 30"
+      },
+      "daily_fixed_cost": {
+        "value": 346,
+        "formula": "daily_rent + daily_staff_cost + daily_utility_property_cost",
+        "source": "截图表格：固定成本/天 346"
+      },
+      "monthly_fixed_cost_estimated": {
+        "value": 10380,
+        "formula": "daily_fixed_cost * 30"
+      },
+      "daily_breakeven": {
+        "value": 576.666667,
+        "formula": "daily_fixed_cost / (gross_margin_rate / 100)",
+        "source": "截图表格：保本线 576.666667"
+      },
       "current_daily_profit": {
-        "value": -250,
-        "source": "公开视频标题：每天亏250块"
+        "value": -256,
+        "formula": "daily_gross_profit - daily_fixed_cost",
+        "source": "截图表格：纯利/天 -256"
       },
       "estimated_monthly_profit": {
-        "value": -7500,
+        "value": -7680,
         "formula": "current_daily_profit * 30"
+      },
+      "breakeven_gap_daily_revenue": {
+        "value": 426.666667,
+        "formula": "daily_breakeven - current_daily_revenue"
+      },
+      "breakeven_achievement_rate": {
+        "value": 26.01,
+        "unit": "percent",
+        "formula": "current_daily_revenue / daily_breakeven * 100"
       },
       "funding_structure": {
         "value": "debt_financed",
         "source": "公开简介：全负债加盟开店"
       },
       "missing_for_full_calculation": [
-        "monthly_rent",
-        "monthly_staff_cost",
-        "monthly_utility_misc_cost",
-        "actual_daily_revenue",
-        "gross_margin_rate",
         "platform_costs",
-        "franchise_fee_breakdown"
+        "delivery_or_community_channel_revenue",
+        "debt_monthly_payment",
+        "rent_payment_terms"
       ],
       "notes": [
-        "只有投入和日亏损，不能反推出完整保本线。",
-        "该案例用于提醒开店前必须验证地址可达性和品类需求，不用于强行匹配结论。"
+        "标题约 13 万投入，用户补充明细合计 12 万，差额可能来自其他开办成本，暂不强行补齐。",
+        "截图表格已可还原经营层面的保本线和日亏损。",
+        "该案例用于提醒开店前必须验证地址可达性、租金与人流关系、品类需求，不用于强行匹配结论。"
       ]
+    },
+    "location_indicators": {
+      "city": "重庆黔江",
+      "market_level": "县城城区",
+      "site_context": "新楼盘",
+      "selected_position": "尾部差位置",
+      "rejected_options": [
+        {
+          "option": "对面商场",
+          "rent": {
+            "value": 80000,
+            "unit": "CNY/year"
+          },
+          "reason_user_rejected": "嫌贵",
+          "agent_note": "商场租金买的是人流，不应只看绝对价格。"
+        },
+        {
+          "option": "同侧靠近街道的位置",
+          "rent": null,
+          "reason_user_rejected": "嫌贵",
+          "agent_note": "靠近街道的位置通常比尾部位置更有自然客流。"
+        }
+      ],
+      "site_selection_teacher": {
+        "fee": {
+          "value": 1500,
+          "unit": "CNY"
+        },
+        "first_recommendation": "大学附近",
+        "second_recommendation": "附近靠近街道的位置",
+        "final_decision": "用户自己选了现在的尾部位置"
+      },
+      "core_location_lesson": "租金租的是人流，不是单纯买便宜。"
+    },
+    "operator_profile": {
+      "restaurant_experience": "none",
+      "staffing": "owner_only",
+      "cognitive_issues": [
+        "把租金贵便宜当作主要决策依据，忽略人流价值。",
+        "请了选址老师但没有采纳更接近客流的位置。",
+        "最终选择新楼盘尾部位置，导致顾客进不来。"
+      ],
+      "yongge_reaction": "无语并无奈"
     },
     "unknowns": [
       {
@@ -341,8 +473,8 @@
         "label": "月租金",
         "type": "number",
         "unit": "CNY/month",
-        "value": null,
-        "source": null,
+        "value": 3480,
+        "source": "截图表格：房租/天116，按30天折算",
         "required_for_mvp": true,
         "fill_hint": "填实际月租；若含物业或管理费，请注明。"
       },
@@ -351,8 +483,8 @@
         "label": "每月人工",
         "type": "number",
         "unit": "CNY/month",
-        "value": null,
-        "source": null,
+        "value": 4500,
+        "source": "截图表格：人工/天150，用户一人在店，按机会工资折算",
         "required_for_mvp": true,
         "fill_hint": "包括老板自己是否顶班；如果老板不算工资，也要备注。"
       },
@@ -361,8 +493,8 @@
         "label": "每月水电杂费",
         "type": "number",
         "unit": "CNY/month",
-        "value": null,
-        "source": null,
+        "value": 2400,
+        "source": "截图表格：水/电/物业80/天，按30天折算",
         "required_for_mvp": true,
         "fill_hint": "水、电、燃气、物业、耗材、清洁、维修等可合并填。"
       },
@@ -391,8 +523,8 @@
         "label": "实际日营业额",
         "type": "number",
         "unit": "CNY/day",
-        "value": null,
-        "source": null,
+        "value": 150,
+        "source": "截图表格：营业额/天150",
         "required_for_mvp": true,
         "fill_hint": "最好填连续 7 天平均值，单日峰值不能代表常态。"
       },
@@ -421,8 +553,8 @@
         "label": "毛利率",
         "type": "number",
         "unit": "percent",
-        "value": null,
-        "source": null,
+        "value": 60,
+        "source": "截图表格：毛利率0.6",
         "required_for_mvp": true,
         "fill_hint": "填 0-100；如果外卖占比高，另补包装、抽佣、补贴。"
       },
@@ -431,8 +563,8 @@
         "label": "加盟合同细节",
         "type": "string",
         "unit": null,
-        "value": null,
-        "source": null,
+        "value": "加盟费5万，调料费1万；其他合同条款未知。",
+        "source": "用户补充",
         "required_for_mvp": false,
         "fill_hint": "填加盟费、供货绑定、区域保护、退款条款、培训和代运营承诺。"
       },
@@ -461,8 +593,8 @@
         "label": "门店可达性问题",
         "type": "string",
         "unit": null,
-        "value": null,
-        "source": null,
+        "value": "新楼盘尾部位置，用户放弃对面商场和同侧靠近街道位置，导致顾客进不来。",
+        "source": "用户补充",
         "required_for_mvp": true,
         "fill_hint": "描述顾客为什么进不来：背街、楼上、遮挡、绕路、入口不明显等。"
       }
@@ -470,8 +602,15 @@
     "risk_flags": [
       "personal_preference_as_demand",
       "bad_store_access",
+      "tail_position_low_traffic",
+      "new_development_traffic_uncertain",
+      "rent_value_misread",
+      "ignored_site_selection_advice",
       "weak_meal_replacement_demand",
       "debt_financed_opening",
+      "no_restaurant_experience",
+      "franchise_cost_pressure",
+      "single_operator",
       "daily_loss_known"
     ],
     "required_evidence": [
@@ -479,16 +618,20 @@
       "门前人流和实际进店率",
       "周边同类或替代品门店观察",
       "连续 7 天日营业额和毛利",
-      "加盟费、房租、押金、装修、设备和物料明细"
+      "加盟费、房租、押金、装修、设备和物料明细",
+      "对面商场、同侧临街位、当前尾部位的租金与人流对比",
+      "新楼盘入住率和实际经过人数"
     ],
     "expected_agent_behavior": [
       "不要把附近有人等同于顾客会进店。",
       "如果顾客进不来，应优先判定地址硬伤。",
-      "每天亏 250 时要换算为月亏约 7500；作为开店前反向样例，要追问当初是否测算过日盈亏平衡点和地址可达性。",
-      "如果地址硬伤不可修复，不建议继续追加投流和装修。"
+      "看到日营业额150、保本线576.67时，应明确这是离保本很远，不是靠小修小补能解决。",
+      "每天亏 256 时要换算为月亏约 7680；作为开店前反向样例，要追问当初是否测算过日盈亏平衡点和地址可达性。",
+      "要指出租金买的是人流，不是单纯看便宜；便宜但没客流的位置会把固定成本变成持续亏损。",
+      "如果用户还想做，优先建议搬家换位置，而不是继续在尾部位置投流或装修。"
     ],
     "expected_verdict": "do_not_open_same_model_or_stop_loss_if_opened",
-    "report_guidance": "开店前遇到类似地址，应先判定为待验证或不建议开；已开店则先算补毛利缺口，再判断低成本转渠道还是止损。"
+    "report_guidance": "开店前遇到类似地址，应先判定为不建议开或必须换位置验证；已开店则先算清保本缺口，想继续做的前提是搬到有真实人流的位置。"
   },
   {
     "case_id": "yg_seed_003_takeover_unverified_claims",
@@ -497,33 +640,119 @@
       "platform": "bilibili",
       "url": "https://www.bilibili.com/video/BV1twPyzeEXU/",
       "public_title": "夫妻要27万接盘漂亮饭，数据全听老板说，勇哥：开了最少亏50万！",
-      "source_level": "public_metadata_only"
+      "source_level": "public_metadata_plus_user_supplement"
     },
     "mvp_scenario": "pre_opening_location_category_finance",
     "business_stage": "pre_takeover",
     "case_usage": "pre_opening_takeover_due_diligence_case",
     "category": {
-      "name": "漂亮饭",
+      "name": "融合菜/漂亮饭",
       "major_type": "meal",
-      "demand_type": "unknown_need_confirm",
-      "risk_note": "品类属性需现场确认，不能只按转让方描述判断。"
+      "demand_type": "social_or_light_social_operationally_dependent",
+      "risk_note": "200 平融合菜/漂亮饭非常吃运营、内容种草、场景和复购，新手不能只靠请人和达人资源。"
     },
     "known_facts": [
-      "公开标题显示夫妻计划 27 万接店。",
-      "公开简介显示转让方声称营业额 200 万。",
-      "公开简介显示转让方声称水电 3000。",
-      "公开简介显示这些数据存在虚报风险。"
+      "夫妻俩想接手一家店继续经营。",
+      "位置在江西南昌。",
+      "品类是融合菜/漂亮饭，面积 200 平。",
+      "表格显示建店成本 28 万；用户口径为 27 万接手，包含转让费、一个月房租、物业费、首批物料、设备等。",
+      "人工 6 个人：前厅 2 个，后厨 4 个，月平均 2.6 万。",
+      "卖方声称一年营业额 200 万。",
+      "店老板说合伙人理念不合要散伙，目前淡季日营业额 2000 - 3000，接下来旺季会慢慢做到 5000 - 6000。",
+      "勇哥质疑：目前不挣钱，接下来未必是旺季，今年状况不能直接用去年同比，因为周围店况也不一样。",
+      "小夫妻老婆 24 岁、老公 27 岁，没有开店经验；之前做教培；开店钱是家里给的，不会负债。",
+      "老公认为运营可以花钱请人解决。",
+      "卖方说能介绍达人资源。",
+      "勇哥认为达人资源不值钱，新人没有运营 200 平大店的能力。",
+      "地址是过期商圈、街边店，位置不好，自然流量不好，非常吃运营。",
+      "勇哥认为装修不值钱，转让费太贵，亏了也很难再转出去。",
+      "勇哥建议不要接手，认为开了至少亏 50 万。"
     ],
     "finance_indicators": {
       "mode": "pre_takeover_due_diligence",
       "currency": "CNY",
-      "transfer_price": {
+      "transfer_price_title_approx": {
         "value": 270000,
-        "source": "公开视频标题：夫妻要27万接盘"
+        "source": "公开视频标题/用户口径：27万接手"
+      },
+      "build_cost_table": {
+        "value": 280000,
+        "source": "截图表格：建店成本 280000"
+      },
+      "area_sqm": {
+        "value": 200,
+        "source": "截图表格/用户补充：面积 200 平"
+      },
+      "monthly_rent": {
+        "value": 15000,
+        "source": "截图表格：房租元/月 15000"
+      },
+      "rent_payment_months": {
+        "value": 1,
+        "source": "截图表格：支付方式（月）1"
+      },
+      "deposit": {
+        "value": 30000,
+        "source": "截图表格：押金 30000"
+      },
+      "transfer_fee_or_intermediary_fee": {
+        "value": 225000,
+        "source": "截图表格：转让费/中介费 225000"
+      },
+      "franchise_or_training_fee": {
+        "value": 0,
+        "source": "截图表格：加盟/技术学习费 0"
+      },
+      "decoration_and_ads": {
+        "value": 0,
+        "source": "截图表格：装修/广告 0"
+      },
+      "equipment": {
+        "value": 0,
+        "source": "截图表格：设备 0；设备可能包含在转让包内，但残值未验证"
+      },
+      "first_batch_material": {
+        "value": 10000,
+        "source": "截图表格：首批物料 10000"
+      },
+      "monthly_staff_cost": {
+        "value": 26000,
+        "source": "截图表格：每月人工 26000；用户补充前厅2人、后厨4人"
+      },
+      "monthly_utility_misc_cost": {
+        "value": 5000,
+        "source": "截图表格：水/电/杂费 5000"
+      },
+      "gross_margin_rate": {
+        "value": 60,
+        "unit": "percent",
+        "source": "截图表格：毛利率 0.6"
+      },
+      "monthly_fixed_cost": {
+        "value": 46000,
+        "formula": "monthly_rent + monthly_staff_cost + monthly_utility_misc_cost"
+      },
+      "daily_fixed_cost": {
+        "value": 1533.33,
+        "formula": "monthly_fixed_cost / 30",
+        "source": "截图表格：每日固定成本 1533.33"
+      },
+      "daily_breakeven": {
+        "value": 2555.56,
+        "formula": "daily_fixed_cost / (gross_margin_rate / 100)",
+        "source": "截图表格：日盈亏平衡点 2555.56"
+      },
+      "target_daily_revenue_12m_payback": {
+        "value": 3851.85,
+        "formula": "(monthly_fixed_cost + build_cost_table / 12) / (gross_margin_rate / 100) / 30"
+      },
+      "target_daily_revenue_24m_payback": {
+        "value": 3203.7,
+        "formula": "(monthly_fixed_cost + build_cost_table / 24) / (gross_margin_rate / 100) / 30"
       },
       "seller_claim_annual_revenue": {
         "value": 2000000,
-        "source": "公开简介：转让方声称营业额200万",
+        "source": "用户补充：店老板说一年营业额200万",
         "confidence": "unverified_claim"
       },
       "seller_claim_average_monthly_revenue": {
@@ -531,10 +760,33 @@
         "formula": "seller_claim_annual_revenue / 12",
         "confidence": "derived_from_unverified_claim"
       },
-      "seller_claim_monthly_utility_cost": {
-        "value": 3000,
-        "source": "公开简介：转让方声称水电3000",
+      "seller_claim_average_daily_revenue": {
+        "value": 5555.56,
+        "formula": "seller_claim_annual_revenue / 12 / 30",
+        "confidence": "derived_from_unverified_claim"
+      },
+      "seller_claim_current_low_season_daily_revenue_range": {
+        "value": [2000, 3000],
+        "unit": "CNY/day",
+        "source": "用户补充：老板说现在淡季2000-3000",
         "confidence": "unverified_claim"
+      },
+      "seller_claim_future_peak_season_daily_revenue_range": {
+        "value": [5000, 6000],
+        "unit": "CNY/day",
+        "source": "用户补充：老板说旺季会做到5000-6000",
+        "confidence": "unverified_claim"
+      },
+      "low_season_daily_profit_range_before_other_costs": {
+        "value": [-333.33, 266.67],
+        "formula": "seller_claim_current_low_season_daily_revenue_range * gross_margin_rate - daily_fixed_cost",
+        "confidence": "derived_from_unverified_claim"
+      },
+      "breakeven_achievement_rate_low_season_range": {
+        "value": [78.26, 117.39],
+        "unit": "percent",
+        "formula": "seller_claim_current_low_season_daily_revenue_range / daily_breakeven * 100",
+        "confidence": "derived_from_unverified_claim"
       },
       "required_verification_before_calculation": [
         "pos_revenue_last_3_months",
@@ -542,11 +794,38 @@
         "bank_receipts_last_3_months",
         "utility_bills_last_3_months",
         "lease_remaining_months",
-        "landlord_transfer_approval"
+        "landlord_transfer_approval",
+        "platform_reviews_and_traffic",
+        "street_flow_observation",
+        "nearby_store_status"
       ],
       "notes": [
-        "转让方声称流水不能直接进入财务模型。",
-        "27万转让价必须结合真实净利和剩余租期计算回本压力。"
+        "27 万接手口径与表格建店成本 28 万存在约 1 万差异；测算以表格 28 万为准。",
+        "卖方声称的去年 200 万营业额、淡旺季预测和达人资源均不能直接进入模型。",
+        "日保本线 2555.56 只代表经营不亏，不包含 28 万接盘成本回收。",
+        "若想 12 个月回本，目标日销约 3851.85；若想 24 个月回本，目标日销约 3203.70。对新手夫妻和过期商圈街边店，这个目标高度依赖运营能力。"
+      ]
+    },
+    "location_indicators": {
+      "city": "江西南昌",
+      "site_type": "街边店",
+      "business_district_status": "过期商圈",
+      "natural_traffic": "差",
+      "location_quality": "不好",
+      "core_location_risk": "自然流量不足，非常吃运营；没有客流时装修价值很低。"
+    },
+    "operator_profile": {
+      "wife_age": 24,
+      "husband_age": 27,
+      "restaurant_experience": "none",
+      "previous_industry": "教培",
+      "funding_source": "family_money",
+      "debt_status": "no_debt",
+      "operator_risk": [
+        "没有开店经验。",
+        "200 平融合菜/漂亮饭对运营能力要求很高。",
+        "老公认为可以花钱请人解决运营，说明对运营复杂度认知不足。",
+        "卖方承诺达人资源，但达人资源本身不构成运营能力。"
       ]
     },
     "unknowns": [
@@ -585,8 +864,8 @@
         "label": "月租金",
         "type": "number",
         "unit": "CNY/month",
-        "value": null,
-        "source": null,
+        "value": 15000,
+        "source": "截图表格：房租元/月 15000",
         "required_for_mvp": true,
         "fill_hint": "按租赁合同填，确认接手后租金是否变更。"
       },
@@ -596,7 +875,7 @@
         "type": "array<number>",
         "unit": "CNY/month",
         "value": null,
-        "source": null,
+        "source": "截图表格仅给出水/电/杂费 5000/月，不等于近3个月票据",
         "required_for_mvp": true,
         "fill_hint": "用于验证转让方声称的水电费用是否真实。"
       },
@@ -605,8 +884,8 @@
         "label": "真实每月人工",
         "type": "number",
         "unit": "CNY/month",
-        "value": null,
-        "source": null,
+        "value": 26000,
+        "source": "截图表格：每月人工 26000；前厅2人、后厨4人",
         "required_for_mvp": true,
         "fill_hint": "接手后需要几个人、每人工资多少，夫妻自己顶班也要备注。"
       },
@@ -636,7 +915,7 @@
         "type": "number",
         "unit": "CNY",
         "value": null,
-        "source": null,
+        "source": "设备包含在接手包内，但勇哥判断装修和设备不值钱；需二手残值验证",
         "required_for_mvp": false,
         "fill_hint": "按二手可变现金额估，不按原采购价估。"
       },
@@ -685,8 +964,8 @@
         "label": "接手后原客群是否可保留",
         "type": "string",
         "unit": null,
-        "value": null,
-        "source": null,
+        "value": "不确定。卖方称合伙人理念不合散伙，并称可介绍达人资源；但原客群、账号、厨师、菜单、复购是否保留都未验证。",
+        "source": "用户补充",
         "required_for_mvp": false,
         "fill_hint": "说明是否保留品牌、厨师、菜单、账号、会员和外卖店铺。"
       }
@@ -696,7 +975,18 @@
       "seller_claim_unverified",
       "possible_fake_revenue",
       "hidden_cost_risk",
-      "evidence_gap"
+      "evidence_gap",
+      "large_store_200_sqm",
+      "high_monthly_staff_cost",
+      "operator_no_restaurant_experience",
+      "operation_heavy_category",
+      "expired_business_district",
+      "poor_street_side_location",
+      "low_natural_traffic",
+      "overreliance_on_paid_operator_or_influencer",
+      "decoration_value_overestimated",
+      "hard_to_transfer_again",
+      "family_money_at_risk"
     ],
     "required_evidence": [
       "至少 3 个月 POS 流水",
@@ -706,15 +996,23 @@
       "租赁合同、剩余租期和房东确认",
       "设备清单和残值",
       "连续蹲点观察进店人数和小票号",
-      "平台评分、差评、复购数据"
+      "平台评分、差评、复购数据",
+      "去年 200 万营业额的完整证据",
+      "当前淡季 2000 - 3000 日销的连续后台数据",
+      "所谓旺季 5000 - 6000 的历史证据",
+      "周边店况变化和商圈是否过期的现场证据",
+      "接手后是否保留厨师、账号、菜单、达人内容和老客的证据"
     ],
     "expected_agent_behavior": [
       "转让方口头流水只能标记为 unverified_claim。",
-      "没有证据时不能把 200 万营业额录入财务模型。",
-      "接盘模型要把转让费、押金、装修折旧、设备残值和隐藏欠款分开算。",
-      "关键证据拿不到时，应输出证据不足，不建议接。"
+      "没有证据时不能把 200 万营业额、旺季 5000 - 6000、达人资源录入可信财务模型。",
+      "接盘模型要把转让费、押金、首批物料、人工、水电、回本日销和隐藏成本分开算。",
+      "要提醒用户：日保本 2555.56 只是不亏，想回 28 万本钱还要更高日销。",
+      "要判断用户是否具备 200 平融合菜/漂亮饭的运营能力；新人说花钱请人就行，应视为高风险。",
+      "要指出过期商圈、街边店、自然流量差时，装修价值很低，转让费过高。",
+      "关键证据拿不到时，应输出不建议接；即使不负债，家里钱亏掉也是真亏。"
     ],
     "expected_verdict": "do_not_take_over_until_verified",
-    "report_guidance": "先尽调再谈价格；拿不到真实流水、费用和租约证据，不进入签约。"
+    "report_guidance": "不建议接手。该店日保本线 2555.56，回本目标要求更高日销；位置和品类高度依赖运营，新手夫妻没有能力证明可承接。若坚持接，必须先拿完整流水、租约、费用、商圈和运营证据，否则不要签。"
   }
 ]
