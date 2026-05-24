@@ -11,6 +11,20 @@
 
 本模块负责第 1 件事，并为最终综合决策提供财务事实。
 
+MVP 第一阶段是开店前评估，不能使用已开店亏损诊断里的“当前日销 / 保本达成率 / 财务斩杀线”。同一个 `KillLineEngine` 需要支持两种模式：
+
+| 模式 | 场景 | 能算什么 | 不能算什么 |
+|---|---|---|---|
+| `pre_opening` | 还没开店，评估能不能开 | 建店成本、每日固定成本、日盈亏平衡点、目标回本日销、目标订单数、现金预留 | 当前日利润、当前月净利润、保本达成率、真实回本周期、斩杀线 |
+| `operating` | 已开店，亏损/小赚/增长诊断 | 当前日利润、当前月净利润、保本达成率、真实回本周期、现金撑店月数、财务斩杀线 | 不适用 |
+
+开店前结论不是“斩杀”，而是：
+
+- `can_open`：财务模型、地址和品类均支持，且验证线可达。
+- `validate_first`：账面可能成立，但缺少客流、竞品或试卖证据。
+- `do_not_open`：即使按乐观目标也难覆盖成本，或资金结构风险过高。
+- `insufficient_data`：关键字段缺失，不能下结论。
+
 ## 2. 勇哥直播间表格公式
 
 用户提供的表格字段：
@@ -246,6 +260,8 @@
 
 ### 3.3 保本达成率
 
+仅适用于 `operating` 模式。开店前没有真实当前日营业额，不能计算该字段。
+
 ```text
 保本达成率 =
   当前日营业额 / 日盈亏平衡点
@@ -263,6 +279,8 @@
 
 ### 3.4 回本周期
 
+这里的“回本周期”仅适用于 `operating` 模式，即已经有真实当前月净利润时。
+
 ```text
 回本周期(月) =
   建店成本 / 当前月净利润
@@ -276,7 +294,7 @@
 
 ### 3.5 目标回本日销
 
-用于判断“想在 N 个月回本，每天要卖多少”。
+用于 `pre_opening` 模式判断“想在 N 个月回本，每天要卖多少”。这是 MVP 财务测算的核心，不依赖真实当前营业额。
 
 ```text
 目标回本日销 =
@@ -294,6 +312,75 @@
 | 重装修社交餐饮 | 18 - 30 |
 
 超过建议回本周期，需要提高风险等级。
+
+### 3.5.1 目标订单数
+
+开店前用户更容易理解“每天要卖多少单”，因此必须把目标日销换算成目标订单数。
+
+```text
+目标订单数 =
+  目标回本日销 / 预估客单价
+```
+
+如果客单价为区间，应输出区间：
+
+```text
+目标订单数下限 =
+  目标回本日销 / 高客单价
+
+目标订单数上限 =
+  目标回本日销 / 低客单价
+```
+
+说明：
+
+- 目标订单数不是预测销量，而是开店前必须验证的最低生存要求。
+- 地址评估和现场蹲点要回答：这个位置有没有机会支撑这个订单量。
+- 如果目标订单数明显超过同类小店常见承载能力，应判为高风险或不建议开。
+
+### 3.5.2 开店前验证线
+
+MVP 不能用“当前日销”算保本达成率，但可以要求用户验证目标订单数是否可能达成。
+
+验证线包括：
+
+| 验证项 | 作用 |
+|---|---|
+| 目标铺位 30 分钟经过人数 | 判断自然客流池 |
+| 目标客群占比 | 判断路过的人是不是会买这个品类 |
+| 附近 3 家相似店 30 分钟进店人数 | 判断同类需求水位 |
+| 小票号首尾差或外卖月售 | 粗估竞品订单量 |
+| 试卖/快闪/预售数据 | 验证产品和价格带 |
+
+开店前判断规则：
+
+```text
+如果目标订单数没有任何客流、竞品或试卖证据支撑：
+  输出 validate_first
+
+如果目标订单数明显超过地址可见客流和同类店水位：
+  输出 do_not_open
+
+如果目标订单数低于可验证同类店水位，且地址/品类/资金均合理：
+  输出 can_open
+```
+
+### 3.5.3 现金预留
+
+开店前必须估算开业后还没稳定时能不能扛住。
+
+```text
+建议最低现金预留 =
+  建店成本
++ 3 到 6 个月月固定成本
++ 债务月供 * 3 到 6
+```
+
+判断：
+
+- 自有资金能覆盖建店成本和 3 个月固定成本：可进入下一步验证。
+- 只能覆盖建店成本，没有开业后现金缓冲：高风险。
+- 需要借亲友钱、贷款、抵押房产才能启动：高风险，通常不建议开。
 
 ### 3.6 剩余现金撑店月数
 
@@ -317,6 +404,7 @@
 
 ```python
 class FinanceInput:
+    mode: str  # pre_opening | operating
     area_sqm: float | None
     monthly_rent: float
     rent_payment_months: int
@@ -337,6 +425,8 @@ class FinanceInput:
     daily_packaging_cost: float = 0
     daily_marketing_discount: float = 0
     current_daily_revenue: float | None
+    estimated_average_ticket: float | None
+    target_payback_months: int | None
     cash_available: float | None
     debt_monthly_payment: float = 0
 ```
@@ -357,6 +447,7 @@ class FinanceInput:
 
 ```python
 class FinanceResult:
+    mode: str
     build_cost: float
     monthly_fixed_cost: float
     monthly_fixed_operation_cost: float
@@ -369,13 +460,37 @@ class FinanceResult:
     breakeven_achievement_rate: float | None
     payback_months: float | None
     target_daily_revenue_12m: float
+    target_order_count_12m: float | None
+    minimum_cash_reserve_3m: float
+    minimum_cash_reserve_6m: float
     cash_runway_months: float | None
     finance_status: str
+    pre_opening_verdict: str | None
     risk_flags: list[str]
     positive_flags: list[str]
 ```
 
 ## 6. 财务风险规则
+
+以下红橙黄绿灯主要适用于 `operating` 模式。`pre_opening` 模式不能用保本达成率做斩杀判断，只能用目标回本日销、目标订单数、现金预留和验证证据做可行性判断。
+
+### 6.0 开店前财务判断
+
+`pre_opening` 模式输出：
+
+| 结果 | 条件 |
+|---|---|
+| `can_open_finance` | 建店成本在预算内；目标订单数低于或接近同类店可验证水位；现金覆盖建店成本和 3 个月固定成本；无高危债务 |
+| `validate_first_finance` | 账面能成立，但目标订单数缺少现场/竞品/试卖证据 |
+| `do_not_open_finance` | 目标订单数明显不现实；现金只够开店不够撑店；依赖高危借款；有效毛利率被平台费用吃穿 |
+| `insufficient_finance_data` | 缺少房租、人力、有效毛利率、建店投入或客单价等关键字段 |
+
+开店前 `finance_status` 不应叫“红灯斩杀”，而应叫：
+
+- `finance_can_open`
+- `finance_validate_first`
+- `finance_do_not_open`
+- `finance_insufficient_data`
 
 ### 6.1 红灯
 

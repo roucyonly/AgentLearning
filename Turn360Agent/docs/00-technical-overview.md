@@ -12,6 +12,8 @@
 - 已亏损：能不能救，怎么救，不能救怎么止损。
 - 小赚：如何提升营业额和利润。
 
+MVP 第一阶段锁定 `开店前：地址评定 + 选品 + 算账`。已亏损和小赚场景保留数据结构与模块接口，但不作为第一版闭环目标。
+
 ## 2. 总体架构
 
 ```text
@@ -72,9 +74,11 @@ MVP：
 MVP：
 
 - React + Vite
+- TypeScript
 - Tailwind 或轻量 CSS
 - Web Geolocation API
 - 文件上传
+- SSE 或 fetch stream 消费后端流式事件
 
 生产版：
 
@@ -96,7 +100,7 @@ MVP：
 | 服务 | 职责 |
 |---|---|
 | `agent-service` | 对话状态机、意图识别、模块编排 |
-| `finance-service` | 财务表、保本线、回本周期、斩杀线与正向通过条件 |
+| `finance-service` | 开店前保本测算、目标回本日销、目标订单数、已开店斩杀线与正向通过条件 |
 | `founder-service` | 经营者表达、执行、运营能力评分 |
 | `location-service` | 坐标、地图 API、POI、热力、街景情报 |
 | `category-service` | 品类库、地域适配、成本毛利参数 |
@@ -129,9 +133,9 @@ MVP 可以放在同一个 FastAPI 项目里，但代码结构要按服务边界�
   -> 收集品类、预算、资金来源、地址
   -> CategoryIntelligenceEngine 判断品类适配
   -> LocationIntelligenceEngine 判断地址
-  -> KillLineEngine 预估日盈亏平衡点
+  -> KillLineEngine 预估日盈亏平衡点、目标回本日销、目标订单数
   -> FounderCapabilityEngine 判断用户是否适合创业
-  -> 输出能不能开；能开给开店条件，不能开给修改或止损建议
+  -> 输出能不能开；能开给开店条件，不能开给修改建议或验证线
 ```
 
 ### 5.3 小赚但增长乏力

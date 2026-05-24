@@ -1,0 +1,720 @@
+[
+  {
+    "case_id": "yg_seed_001_luckin_neighbor_coffee",
+    "title": "瑞幸隔壁开咖啡店",
+    "source": {
+      "platform": "bilibili",
+      "url": "https://www.bilibili.com/video/BV1zQq5BeEYS/",
+      "public_title": "餐饮创业说第19集｜神秘大哥瑞幸隔壁开咖啡店就想和他扳扳手腕",
+      "source_level": "public_metadata_only"
+    },
+    "mvp_scenario": "opened_losing_reverse_pre_opening_lesson",
+    "business_stage": "opened_losing",
+    "case_usage": "reverse_pre_opening_risk_case",
+    "category": {
+      "name": "咖啡",
+      "major_type": "drinks",
+      "demand_type": "light_social",
+      "risk_note": "品牌、便利性、价格带和复购强相关，不能只靠味道判断。"
+    },
+    "known_facts": [
+      "用户已经在瑞幸旁边开咖啡店，当前经营不理想。",
+      "公开标题显示其目标包含与强品牌竞品竞争。",
+      "毛利50%",
+      "日营业额1000元",
+      "人工3个人，每月共计9000元",
+      "水电气每日100元，每月约3000元"
+    ],
+    "finance_indicators": {
+      "mode": "operating_case_for_pre_opening_reverse_check",
+      "currency": "CNY",
+      "area_sqm": {
+        "value": 70,
+        "source": "用户补充"
+      },
+      "monthly_rent": {
+        "value": 6600,
+        "source": "用户补充：月租"
+      },
+      "opening_investment_total": {
+        "value": 100000,
+        "source": "用户补充：朋友投资"
+      },
+      "current_daily_revenue": {
+        "value": 1000,
+        "source": "用户补充：日营业额1000元"
+      },
+      "gross_margin_rate": {
+        "value": 50,
+        "unit": "percent",
+        "source": "用户补充：毛利50%"
+      },
+      "monthly_staff_cost": {
+        "value": 9000,
+        "source": "用户补充：人工3个人，每月共计9000元"
+      },
+      "daily_utility_misc_cost": {
+        "value": 100,
+        "source": "用户补充：水电气每日100元"
+      },
+      "monthly_utility_misc_cost": {
+        "value": 3000,
+        "source": "用户补充：水电气每月约3000元"
+      },
+      "estimated_monthly_revenue": {
+        "value": 30000,
+        "formula": "current_daily_revenue * 30"
+      },
+      "estimated_monthly_gross_profit": {
+        "value": 15000,
+        "formula": "estimated_monthly_revenue * gross_margin_rate"
+      },
+      "estimated_monthly_fixed_cost_without_other_ops": {
+        "value": 18600,
+        "formula": "monthly_rent + monthly_staff_cost + monthly_utility_misc_cost"
+      },
+      "estimated_monthly_profit_without_other_ops": {
+        "value": -3600,
+        "formula": "estimated_monthly_gross_profit - estimated_monthly_fixed_cost_without_other_ops"
+      },
+      "daily_breakeven_without_other_ops": {
+        "value": 1240,
+        "formula": "(monthly_rent + monthly_staff_cost + monthly_utility_misc_cost) / 30 / gross_margin_rate"
+      },
+      "breakeven_gap_daily_revenue": {
+        "value": 240,
+        "formula": "daily_breakeven_without_other_ops - current_daily_revenue"
+      },
+      "notes": [
+        "该案例已开业，因此这些指标用于反推开店前应如何测算，不作为 MVP 的 pre_opening 输入直接套用。",
+        "未计入其他运营费用、平台费用、老板工资、债务成本，真实亏损可能更高。"
+      ]
+    },
+    "market_indicators": {
+      "competitor_daily_orders": [
+        {
+          "brand": "茶百道",
+          "value": 300,
+          "unit": "orders/day",
+          "source": "用户补充"
+        },
+        {
+          "brand": "瑞幸",
+          "value": 350,
+          "unit": "orders/day",
+          "source": "用户补充"
+        }
+      ],
+      "nearby_population_claims": [
+        {
+          "scope": "周围小区",
+          "value_range": [40000, 50000],
+          "unit": "people",
+          "source": "用户补充：县城头部商场，周围小区很多"
+        },
+        {
+          "scope": "3km 辐射",
+          "value": 100000,
+          "unit": "people",
+          "source": "用户补充：辐射3km的话可能有10万人"
+        }
+      ],
+      "notes": [
+        "竞品日单量可用于判断商圈饮品需求水位，但不能直接等同于新店可获得订单。",
+        "人口数据为用户补充说法，后续应由地图/物业/现场观察交叉验证。"
+      ]
+    },
+    "unknowns": [
+      {
+        "key": "monthly_rent",
+        "label": "房租",
+        "type": "number",
+        "unit": "CNY/month",
+        "value": 6600,
+        "source": "月租",
+        "required_for_mvp": true,
+        "fill_hint": "填合同月租或房东报价；如果不含物业费，请在 source 或 notes 里注明。"
+      },
+      {
+        "key": "usable_area_sqm",
+        "label": "可用面积",
+        "type": "number",
+        "unit": "sqm",
+        "value": 70,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "填实际可经营面积，不要把公摊当成有效经营面积。"
+      },
+      {
+        "key": "rent_payment_terms",
+        "label": "租金支付方式",
+        "type": "string",
+        "unit": null,
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "例如押一付三、押二付六、一次付一年。"
+      },
+      {
+        "key": "average_ticket",
+        "label": "预估客单价",
+        "type": "number",
+        "unit": "CNY/order",
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "按真实菜单或竞品价格估，不要填理想最高客单。"
+      },
+      {
+        "key": "gross_margin_rate",
+        "label": "毛利率",
+        "type": "number",
+        "unit": "percent",
+        "value": 50,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "填 0-100；如果不会算，补售价、原料成本和包装成本。"
+      },
+      {
+        "key": "opening_investment_total",
+        "label": "建店总投入",
+        "type": "number",
+        "unit": "CNY",
+        "value": 100000,
+        "source": "朋友投资",
+        "required_for_mvp": true,
+        "fill_hint": "包含装修、设备、首批物料、押金、加盟/学习费、开业推广等。"
+      },
+      {
+        "key": "nearby_office_population",
+        "label": "周边办公人数",
+        "type": "number",
+        "unit": "people",
+        "value": null,
+        "source": null,
+        "required_for_mvp": false,
+        "fill_hint": "可来自物业、招商资料、楼宇公开信息或现场估算；source 写清楚。"
+      },
+      {
+        "key": "nearby_residential_population",
+        "label": "周边社区居住人数",
+        "type": "number",
+        "unit": "people",
+        "value": null,
+        "source": "县城头部商场，周围小区很多人口约4-5万人；辐射3km的话可能有10万人",
+        "required_for_mvp": false,
+        "fill_hint": "尽量填入住人数或户数估算，不要只填小区数量。"
+      },
+      {
+        "key": "target_storefront_traffic_30min",
+        "label": "目标铺位门前 30 分钟经过人数",
+        "type": "number",
+        "unit": "people/30min",
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "建议分早高峰、午餐、晚高峰至少各数一次。"
+      },
+      {
+        "key": "luckin_entry_count_30min",
+        "label": "瑞幸 30 分钟进店人数",
+        "type": "number",
+        "unit": "people/30min",
+        "value": null,
+        "source": null,
+        "required_for_mvp": false,
+        "fill_hint": "用于判断强品牌自身客流，不等于你能拿到的客流。"
+      },
+      {
+        "key": "overflow_customer_observation",
+        "label": "瑞幸外溢客流观察",
+        "type": "string",
+        "unit": null,
+        "value": null,
+        "source": null,
+        "required_for_mvp": false,
+        "fill_hint": "记录排队、等位、用户是否有替代购买行为。"
+      },
+      {
+        "key": "operator_coffee_experience",
+        "label": "用户咖啡/餐饮经验",
+        "type": "string",
+        "unit": null,
+        "value": null,
+        "source": "未提及",
+        "required_for_mvp": true,
+        "fill_hint": "填是否做过咖啡、餐饮、门店管理、外卖运营或本地账号。"
+      },
+      {
+        "key": "differentiation_plan",
+        "label": "差异化方案",
+        "type": "string",
+        "unit": null,
+        "value": null,
+        "source": "用户自认爆品是‘生椰拿铁’，原材料比瑞幸更优质，用料比瑞幸扎实",
+        "required_for_mvp": true,
+        "fill_hint": "不要只写味道更好；要写价格带、产品、速度、场景、复购或获客方式。"
+      }
+    ],
+    "risk_flags": [
+      "dominant_brand_neighbor",
+      "competition_misread",
+      "taste_as_only_differentiation",
+      "requires_operator_marketing_ability"
+    ],
+    "required_evidence": [
+      "连续 3 个时段蹲点统计瑞幸进店人数和外溢人流",
+      "目标铺位门前 30 分钟经过人数和目标客群人数",
+      "周边 500 米办公楼、小区、学校、商场 POI",
+      "租金、人力、设备、装修和原料成本",
+      "试卖或快闪测试数据"
+    ],
+    "expected_agent_behavior": [
+      "不能因为旁边有瑞幸就直接判死。",
+      "不能因为瑞幸有客流就直接判定可以做。",
+      "必须把强竞品旁边的客流拆成品牌自有客流和可争夺客流。",
+      "用户只说味道更好时，应追问差异化、价格、出杯速度和获客方式。"
+    ],
+    "expected_verdict": "insufficient_data_or_validate_first",
+    "report_guidance": "建议先做 7 天蹲点和低成本试卖，证明有可争夺客流后再进入租约和装修决策。"
+  },
+  {
+    "case_id": "yg_seed_002_pickle_bad_access",
+    "title": "13 万开泡菜店，顾客进不来",
+    "source": {
+      "platform": "bilibili",
+      "url": "https://www.bilibili.com/video/BV1inZZBTEqx/",
+      "public_title": "因自己爱吃，13万开泡菜店！“天才选址”顾客进不来！每天亏250块",
+      "source_level": "public_metadata_only"
+    },
+    "mvp_scenario": "opened_losing_reverse_pre_opening_lesson",
+    "business_stage": "opened_losing_as_pre_opening_lesson",
+    "case_usage": "reverse_pre_opening_risk_case",
+    "category": {
+      "name": "泡菜",
+      "major_type": "snack_or_side_dish",
+      "demand_type": "non_rigid_or_scene_dependent",
+      "risk_note": "个人爱吃不等于区域刚需，需验证佐餐、社区复购或外卖场景。"
+    },
+    "known_facts": [
+      "公开标题显示投入约 13 万。",
+      "公开标题显示每天亏约 250 元。",
+      "公开简介显示问题集中在选址，顾客进不来。",
+      "公开简介提到全负债加盟开店。"
+    ],
+    "finance_indicators": {
+      "mode": "operating_case_for_pre_opening_reverse_check",
+      "currency": "CNY",
+      "opening_investment_total": {
+        "value": 130000,
+        "source": "公开视频标题：13万开泡菜店"
+      },
+      "current_daily_profit": {
+        "value": -250,
+        "source": "公开视频标题：每天亏250块"
+      },
+      "estimated_monthly_profit": {
+        "value": -7500,
+        "formula": "current_daily_profit * 30"
+      },
+      "funding_structure": {
+        "value": "debt_financed",
+        "source": "公开简介：全负债加盟开店"
+      },
+      "missing_for_full_calculation": [
+        "monthly_rent",
+        "monthly_staff_cost",
+        "monthly_utility_misc_cost",
+        "actual_daily_revenue",
+        "gross_margin_rate",
+        "platform_costs",
+        "franchise_fee_breakdown"
+      ],
+      "notes": [
+        "只有投入和日亏损，不能反推出完整保本线。",
+        "该案例用于提醒开店前必须验证地址可达性和品类需求，不用于强行匹配结论。"
+      ]
+    },
+    "unknowns": [
+      {
+        "key": "monthly_rent",
+        "label": "月租金",
+        "type": "number",
+        "unit": "CNY/month",
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "填实际月租；若含物业或管理费，请注明。"
+      },
+      {
+        "key": "monthly_staff_cost",
+        "label": "每月人工",
+        "type": "number",
+        "unit": "CNY/month",
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "包括老板自己是否顶班；如果老板不算工资，也要备注。"
+      },
+      {
+        "key": "monthly_utility_misc_cost",
+        "label": "每月水电杂费",
+        "type": "number",
+        "unit": "CNY/month",
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "水、电、燃气、物业、耗材、清洁、维修等可合并填。"
+      },
+      {
+        "key": "monthly_fixed_operation_cost",
+        "label": "每月固定运营费用",
+        "type": "number",
+        "unit": "CNY/month",
+        "value": null,
+        "source": null,
+        "required_for_mvp": false,
+        "fill_hint": "外卖排名、固定推广、SaaS、社群工具、达人月费等。"
+      },
+      {
+        "key": "platform_variable_cost_rate",
+        "label": "平台变动费用率",
+        "type": "number",
+        "unit": "percent",
+        "value": null,
+        "source": null,
+        "required_for_mvp": false,
+        "fill_hint": "外卖抽佣、配送补贴、支付手续费、满减折扣可折算成比例。"
+      },
+      {
+        "key": "actual_daily_revenue",
+        "label": "实际日营业额",
+        "type": "number",
+        "unit": "CNY/day",
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "最好填连续 7 天平均值，单日峰值不能代表常态。"
+      },
+      {
+        "key": "daily_order_count",
+        "label": "日订单数",
+        "type": "number",
+        "unit": "orders/day",
+        "value": null,
+        "source": null,
+        "required_for_mvp": false,
+        "fill_hint": "堂食、外卖、团购最好拆开。"
+      },
+      {
+        "key": "average_ticket",
+        "label": "客单价",
+        "type": "number",
+        "unit": "CNY/order",
+        "value": null,
+        "source": null,
+        "required_for_mvp": false,
+        "fill_hint": "可用日营业额除以日订单数。"
+      },
+      {
+        "key": "gross_margin_rate",
+        "label": "毛利率",
+        "type": "number",
+        "unit": "percent",
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "填 0-100；如果外卖占比高，另补包装、抽佣、补贴。"
+      },
+      {
+        "key": "franchise_contract_summary",
+        "label": "加盟合同细节",
+        "type": "string",
+        "unit": null,
+        "value": null,
+        "source": null,
+        "required_for_mvp": false,
+        "fill_hint": "填加盟费、供货绑定、区域保护、退款条款、培训和代运营承诺。"
+      },
+      {
+        "key": "delivery_enabled",
+        "label": "是否开通外卖",
+        "type": "boolean",
+        "unit": null,
+        "value": null,
+        "source": null,
+        "required_for_mvp": false,
+        "fill_hint": "填 true/false；如果开通，最好补外卖占比和平台费用。"
+      },
+      {
+        "key": "community_channel_enabled",
+        "label": "是否有社区团购/私域渠道",
+        "type": "boolean",
+        "unit": null,
+        "value": null,
+        "source": null,
+        "required_for_mvp": false,
+        "fill_hint": "泡菜这类品类需要验证复购渠道；填是否已有群、团长或老客。"
+      },
+      {
+        "key": "storefront_access_issue",
+        "label": "门店可达性问题",
+        "type": "string",
+        "unit": null,
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "描述顾客为什么进不来：背街、楼上、遮挡、绕路、入口不明显等。"
+      }
+    ],
+    "risk_flags": [
+      "personal_preference_as_demand",
+      "bad_store_access",
+      "weak_meal_replacement_demand",
+      "debt_financed_opening",
+      "daily_loss_known"
+    ],
+    "required_evidence": [
+      "门店入口和动线照片",
+      "门前人流和实际进店率",
+      "周边同类或替代品门店观察",
+      "连续 7 天日营业额和毛利",
+      "加盟费、房租、押金、装修、设备和物料明细"
+    ],
+    "expected_agent_behavior": [
+      "不要把附近有人等同于顾客会进店。",
+      "如果顾客进不来，应优先判定地址硬伤。",
+      "每天亏 250 时要换算为月亏约 7500；作为开店前反向样例，要追问当初是否测算过日盈亏平衡点和地址可达性。",
+      "如果地址硬伤不可修复，不建议继续追加投流和装修。"
+    ],
+    "expected_verdict": "do_not_open_same_model_or_stop_loss_if_opened",
+    "report_guidance": "开店前遇到类似地址，应先判定为待验证或不建议开；已开店则先算补毛利缺口，再判断低成本转渠道还是止损。"
+  },
+  {
+    "case_id": "yg_seed_003_takeover_unverified_claims",
+    "title": "27 万接盘漂亮饭，数据全听老板说",
+    "source": {
+      "platform": "bilibili",
+      "url": "https://www.bilibili.com/video/BV1twPyzeEXU/",
+      "public_title": "夫妻要27万接盘漂亮饭，数据全听老板说，勇哥：开了最少亏50万！",
+      "source_level": "public_metadata_only"
+    },
+    "mvp_scenario": "pre_opening_location_category_finance",
+    "business_stage": "pre_takeover",
+    "case_usage": "pre_opening_takeover_due_diligence_case",
+    "category": {
+      "name": "漂亮饭",
+      "major_type": "meal",
+      "demand_type": "unknown_need_confirm",
+      "risk_note": "品类属性需现场确认，不能只按转让方描述判断。"
+    },
+    "known_facts": [
+      "公开标题显示夫妻计划 27 万接店。",
+      "公开简介显示转让方声称营业额 200 万。",
+      "公开简介显示转让方声称水电 3000。",
+      "公开简介显示这些数据存在虚报风险。"
+    ],
+    "finance_indicators": {
+      "mode": "pre_takeover_due_diligence",
+      "currency": "CNY",
+      "transfer_price": {
+        "value": 270000,
+        "source": "公开视频标题：夫妻要27万接盘"
+      },
+      "seller_claim_annual_revenue": {
+        "value": 2000000,
+        "source": "公开简介：转让方声称营业额200万",
+        "confidence": "unverified_claim"
+      },
+      "seller_claim_average_monthly_revenue": {
+        "value": 166666.67,
+        "formula": "seller_claim_annual_revenue / 12",
+        "confidence": "derived_from_unverified_claim"
+      },
+      "seller_claim_monthly_utility_cost": {
+        "value": 3000,
+        "source": "公开简介：转让方声称水电3000",
+        "confidence": "unverified_claim"
+      },
+      "required_verification_before_calculation": [
+        "pos_revenue_last_3_months",
+        "delivery_revenue_last_3_months",
+        "bank_receipts_last_3_months",
+        "utility_bills_last_3_months",
+        "lease_remaining_months",
+        "landlord_transfer_approval"
+      ],
+      "notes": [
+        "转让方声称流水不能直接进入财务模型。",
+        "27万转让价必须结合真实净利和剩余租期计算回本压力。"
+      ]
+    },
+    "unknowns": [
+      {
+        "key": "pos_revenue_last_3_months",
+        "label": "近 3 个月 POS 流水",
+        "type": "array<number>",
+        "unit": "CNY/month",
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "按月份填 3 个数字，例如 [180000, 160000, 150000]；必须来自后台或截图。"
+      },
+      {
+        "key": "delivery_revenue_last_3_months",
+        "label": "近 3 个月外卖后台流水",
+        "type": "array<number>",
+        "unit": "CNY/month",
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "按月份填外卖平台真实后台流水；没有外卖填 [0,0,0] 并注明。"
+      },
+      {
+        "key": "bank_receipts_last_3_months",
+        "label": "近 3 个月银行入账",
+        "type": "array<number>",
+        "unit": "CNY/month",
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "用于交叉验证 POS 和外卖流水，不要只听转让方口头说。"
+      },
+      {
+        "key": "monthly_rent",
+        "label": "月租金",
+        "type": "number",
+        "unit": "CNY/month",
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "按租赁合同填，确认接手后租金是否变更。"
+      },
+      {
+        "key": "utility_bills_last_3_months",
+        "label": "近 3 个月水电燃气费用",
+        "type": "array<number>",
+        "unit": "CNY/month",
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "用于验证转让方声称的水电费用是否真实。"
+      },
+      {
+        "key": "monthly_staff_cost",
+        "label": "真实每月人工",
+        "type": "number",
+        "unit": "CNY/month",
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "接手后需要几个人、每人工资多少，夫妻自己顶班也要备注。"
+      },
+      {
+        "key": "lease_remaining_months",
+        "label": "租约剩余期限",
+        "type": "number",
+        "unit": "months",
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "按合同剩余月份填；剩余太短会影响转让费合理性。"
+      },
+      {
+        "key": "landlord_transfer_approval",
+        "label": "房东是否书面同意转租/转让",
+        "type": "boolean",
+        "unit": null,
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "填 true/false；口头同意不算强证据，最好有书面确认。"
+      },
+      {
+        "key": "equipment_residual_value",
+        "label": "设备残值",
+        "type": "number",
+        "unit": "CNY",
+        "value": null,
+        "source": null,
+        "required_for_mvp": false,
+        "fill_hint": "按二手可变现金额估，不按原采购价估。"
+      },
+      {
+        "key": "platform_rating",
+        "label": "平台评分",
+        "type": "number",
+        "unit": "score",
+        "value": null,
+        "source": null,
+        "required_for_mvp": false,
+        "fill_hint": "填大众点评/美团/外卖评分；注明平台。"
+      },
+      {
+        "key": "negative_review_summary",
+        "label": "历史差评摘要",
+        "type": "string",
+        "unit": null,
+        "value": null,
+        "source": null,
+        "required_for_mvp": false,
+        "fill_hint": "概括主要差评：口味、服务、卫生、出餐慢、价格高等。"
+      },
+      {
+        "key": "in_store_count_30min",
+        "label": "蹲点 30 分钟进店人数",
+        "type": "number",
+        "unit": "people/30min",
+        "value": null,
+        "source": null,
+        "required_for_mvp": true,
+        "fill_hint": "建议工作日和周末都数，至少午餐/晚餐一个峰值时段。"
+      },
+      {
+        "key": "receipt_number_span",
+        "label": "小票号首尾差",
+        "type": "number",
+        "unit": "orders/period",
+        "value": null,
+        "source": null,
+        "required_for_mvp": false,
+        "fill_hint": "能看到小票号时填，用于粗估一段时间订单数。"
+      },
+      {
+        "key": "customer_retention_after_takeover",
+        "label": "接手后原客群是否可保留",
+        "type": "string",
+        "unit": null,
+        "value": null,
+        "source": null,
+        "required_for_mvp": false,
+        "fill_hint": "说明是否保留品牌、厨师、菜单、账号、会员和外卖店铺。"
+      }
+    ],
+    "risk_flags": [
+      "takeover_fee",
+      "seller_claim_unverified",
+      "possible_fake_revenue",
+      "hidden_cost_risk",
+      "evidence_gap"
+    ],
+    "required_evidence": [
+      "至少 3 个月 POS 流水",
+      "至少 3 个月外卖平台后台截图",
+      "银行入账记录",
+      "水电燃气票据",
+      "租赁合同、剩余租期和房东确认",
+      "设备清单和残值",
+      "连续蹲点观察进店人数和小票号",
+      "平台评分、差评、复购数据"
+    ],
+    "expected_agent_behavior": [
+      "转让方口头流水只能标记为 unverified_claim。",
+      "没有证据时不能把 200 万营业额录入财务模型。",
+      "接盘模型要把转让费、押金、装修折旧、设备残值和隐藏欠款分开算。",
+      "关键证据拿不到时，应输出证据不足，不建议接。"
+    ],
+    "expected_verdict": "do_not_take_over_until_verified",
+    "report_guidance": "先尽调再谈价格；拿不到真实流水、费用和租约证据，不进入签约。"
+  }
+]

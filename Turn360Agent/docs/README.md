@@ -19,6 +19,8 @@
 15. `session-admin-ui-wireframe.svg`：管理员 Session 控制台线框图。
 16. `report-ui-wireframe.svg`：用户最终诊断报告 UI 图。
 17. `11-ui-svg-coding-map.md`：UI、SVG 原型、前端路由、组件和流式事件的编码关联表。
+18. `12-mvp-scope-tech-and-seed-cases.md`：MVP 主场景、React + FastAPI 技术栈确认和三个样例案例。
+19. `seed-cases-yongge-mvp.json`：可用于 RAG、QA 和示例 Session 的结构化样例案例。
 
 开发时建议先实现：
 
