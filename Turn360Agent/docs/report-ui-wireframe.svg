@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1080" viewBox="0 0 1440 1080">
+  <defs>
+    <style>
+      .bg { fill: #f4f6f9; }
+      .phone { fill: #111827; }
+      .screen { fill: #fdfdfb; }
+      .panel { fill: #ffffff; stroke: #d4dbe7; stroke-width: 1.2; }
+      .soft { fill: #f8fafc; stroke: #d8e0eb; stroke-width: 1; }
+      .green { fill: #e9f8ef; stroke: #a8ddb9; stroke-width: 1; }
+      .yellow { fill: #fff7df; stroke: #f1d48a; stroke-width: 1; }
+      .red { fill: #fff0ee; stroke: #f0aaa1; stroke-width: 1; }
+      .blue { fill: #edf4ff; stroke: #bdd7ff; stroke-width: 1; }
+      .text { font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", Arial, sans-serif; fill: #172033; }
+      .muted { fill: #667085; }
+      .blueText { fill: #2563eb; }
+      .greenText { fill: #16a34a; }
+      .yellowText { fill: #d97706; }
+      .redText { fill: #dc2626; }
+      .white { fill: #ffffff; }
+      .tiny { font-size: 12px; }
+      .small { font-size: 14px; }
+      .normal { font-size: 17px; }
+      .section { font-size: 18px; font-weight: 700; }
+      .title { font-size: 28px; font-weight: 700; }
+      .bold { font-weight: 700; }
+      .line { stroke: #c6cfdd; stroke-width: 1.2; fill: none; }
+      .shadow { filter: drop-shadow(0 16px 28px rgba(15, 23, 42, 0.14)); }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1440" height="1080"/>
+  <text class="text title" x="64" y="60">用户报告 UI：当前状况总结 + 逐条分析 + 后续建议</text>
+  <text class="text small muted" x="64" y="90">报告来自完整 Session，不展示原始隐藏评分，但要把建议讲清楚、讲具体、讲依据。</text>
+
+  <!-- phone report -->
+  <g class="shadow">
+    <rect class="phone" x="72" y="128" width="430" height="870" rx="44"/>
+    <rect class="screen" x="94" y="154" width="386" height="818" rx="30"/>
+    <rect fill="#111827" x="224" y="140" width="126" height="16" rx="8"/>
+  </g>
+
+  <text class="text section" x="122" y="192">诊断报告</text>
+  <text class="text tiny muted" x="122" y="216">Session S-2405-001 · 目标铺位</text>
+
+  <rect class="green" x="116" y="236" width="340" height="118" rx="18"/>
+  <text class="text normal bold" x="136" y="268">结论：可以做，但轻资产开</text>
+  <text class="text small muted" x="136" y="296">证据支持：地址好、账能通、用户有经验。</text>
+  <text class="text small muted" x="136" y="322">前提：核实学校政策和假期现金流。</text>
+
+  <rect class="panel" x="116" y="374" width="340" height="126" rx="18"/>
+  <text class="text section" x="136" y="404">当前状况</text>
+  <text class="text small muted" x="136" y="432">品类：米饭快餐</text>
+  <text class="text small muted" x="136" y="458">位置：封闭学校旁，竞品少</text>
+  <text class="text small muted" x="136" y="484">预算：12 万，自有资金</text>
+
+  <rect class="panel" x="116" y="520" width="340" height="160" rx="18"/>
+  <text class="text section" x="136" y="550">关键数字</text>
+  <text class="text small muted" x="136" y="580">建店成本</text>
+  <text class="text small bold" x="362" y="580">待确认</text>
+  <text class="text small muted" x="136" y="610">日盈亏平衡点</text>
+  <text class="text small bold blueText" x="362" y="610">1010</text>
+  <text class="text small muted" x="136" y="640">目标日销</text>
+  <text class="text small bold greenText" x="362" y="640">1800+</text>
+  <text class="text small muted" x="136" y="666">回本周期</text>
+  <text class="text small bold" x="362" y="666">约 8-12 月</text>
+
+  <rect class="panel" x="116" y="700" width="340" height="202" rx="18"/>
+  <text class="text section" x="136" y="730">下一步行动</text>
+  <text class="text small muted" x="136" y="760">1. 今天补拍排烟/证照/对街。</text>
+  <text class="text small muted" x="136" y="790">2. 连续 3 天数人/进店/小票。</text>
+  <text class="text small muted" x="136" y="820">3. 租约谈成押一付三。</text>
+  <text class="text small muted" x="136" y="850">4. 先做 20 个 SKU 内小菜单。</text>
+  <text class="text small redText" x="136" y="880">止损线：14 天日销低于 1200，暂停。</text>
+
+  <!-- Desktop report layout -->
+  <rect class="panel shadow" x="552" y="128" width="812" height="870" rx="24"/>
+  <text class="text title" x="594" y="178">餐饮创业诊断报告</text>
+  <text class="text small muted" x="594" y="208">面向用户的正式报告 · 不展示隐藏原始评分 · 每条建议必须有依据</text>
+
+  <rect class="green" x="594" y="236" width="728" height="112" rx="18"/>
+  <text class="text section" x="620" y="272">最终结论：可以做，但只建议轻资产版本</text>
+  <text class="text small muted" x="620" y="302">理由：地址数据支持、财务模型可覆盖经营成本、用户有同类执行经验，且资金来源为自有资金。</text>
+  <text class="text small muted" x="620" y="328">边界：学校政策、假期现金流、证照排烟未确认前，不签长约、不重装修。</text>
+
+  <rect class="panel" x="594" y="372" width="350" height="196" rx="18"/>
+  <text class="text section" x="620" y="404">逐条分析：财务</text>
+  <text class="text small muted" x="620" y="434">房租 5000/月，压力可控。</text>
+  <text class="text small muted" x="620" y="462">日盈亏平衡点约 1010。</text>
+  <text class="text small muted" x="620" y="490">目标日销应设在 1800 以上。</text>
+  <text class="text small muted" x="620" y="518">自有资金，无高危债务。</text>
+  <text class="text small greenText" x="620" y="546">判断：财务上可验证。</text>
+
+  <rect class="panel" x="972" y="372" width="350" height="196" rx="18"/>
+  <text class="text section" x="998" y="404">逐条分析：地址</text>
+  <text class="text small muted" x="998" y="434">封闭学校旁，客流来源明确。</text>
+  <text class="text small muted" x="998" y="462">500 米内同品类少。</text>
+  <text class="text small muted" x="998" y="490">仍需核实校外消费政策。</text>
+  <text class="text small muted" x="998" y="518">假期现金流是主要风险。</text>
+  <text class="text small greenText" x="998" y="546">判断：地址数据支持可做。</text>
+
+  <rect class="panel" x="594" y="592" width="350" height="188" rx="18"/>
+  <text class="text section" x="620" y="624">逐条分析：品类</text>
+  <text class="text small muted" x="620" y="654">米饭快餐属于刚需主食。</text>
+  <text class="text small muted" x="620" y="682">适合学校/工厂/写字楼。</text>
+  <text class="text small muted" x="620" y="710">不适合过度装修和大菜单。</text>
+  <text class="text small greenText" x="620" y="744">建议：小菜单、快出餐、复购。</text>
+
+  <rect class="panel" x="972" y="592" width="350" height="188" rx="18"/>
+  <text class="text section" x="998" y="624">逐条分析：执行</text>
+  <text class="text small muted" x="998" y="654">用户能讲清预算和客群。</text>
+  <text class="text small muted" x="998" y="682">有快餐经验，执行基础较好。</text>
+  <text class="text small muted" x="998" y="710">还缺数人和小票估算数据。</text>
+  <text class="text small yellowText" x="998" y="744">建议：先做 7 天验证。</text>
+
+  <rect class="yellow" x="594" y="804" width="728" height="144" rx="18"/>
+  <text class="text section" x="620" y="836">切实可行的后续方案</text>
+  <text class="text small muted" x="620" y="866">今天：补拍证照/排烟/对街，确认租约能否押一付三。</text>
+  <text class="text small muted" x="620" y="894">7 天：同一时段数经过、进店、小票号和同业客流。</text>
+  <text class="text small muted" x="620" y="922">开业前：只做轻装修和小菜单；目标日销低于 1800 不加投。</text>
+
+  <text class="text tiny muted" x="64" y="1046">文件：docs/report-ui-wireframe.svg · 报告 UI 要服务决策：当前状况、逐条分析、依据、行动、验证指标、止损线。</text>
+</svg>

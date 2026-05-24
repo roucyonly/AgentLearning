@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="980" viewBox="0 0 1440 980">
+  <defs>
+    <style>
+      .bg { fill: #f5f6f8; }
+      .phone { fill: #111827; }
+      .screen { fill: #fdfdfb; }
+      .panel { fill: #ffffff; stroke: #d8dde6; stroke-width: 1.4; }
+      .soft { fill: #f4f7fb; stroke: #d8dde6; stroke-width: 1; }
+      .chip { fill: #edf4ff; stroke: #bdd7ff; stroke-width: 1; }
+      .chip-green { fill: #e9f8ef; stroke: #a8ddb9; stroke-width: 1; }
+      .chip-yellow { fill: #fff7df; stroke: #f1d48a; stroke-width: 1; }
+      .chip-red { fill: #fff0ee; stroke: #f0aaa1; stroke-width: 1; }
+      .text { font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", Arial, sans-serif; fill: #172033; }
+      .muted { fill: #667085; }
+      .tiny { font-size: 13px; }
+      .small { font-size: 15px; }
+      .normal { font-size: 18px; }
+      .title { font-size: 28px; font-weight: 700; }
+      .section { font-size: 18px; font-weight: 700; }
+      .bold { font-weight: 700; }
+      .line { stroke: #c8d0dc; stroke-width: 1.4; fill: none; }
+      .blue { fill: #2563eb; }
+      .green { fill: #16a34a; }
+      .yellow { fill: #d97706; }
+      .red { fill: #dc2626; }
+      .dark { fill: #111827; }
+      .shadow { filter: drop-shadow(0 18px 35px rgba(15, 23, 42, 0.15)); }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1440" height="980"/>
+
+  <text class="text title" x="64" y="62">餐饮创业 Agent 移动端 UI 图</text>
+  <text class="text small muted" x="64" y="92">User UI 面向普通用户；Debug UI 面向开发/运营/质检。流式事件驱动，实时更新参数与调用路径。</text>
+
+  <!-- User UI phone -->
+  <g class="shadow">
+    <rect class="phone" x="70" y="130" width="410" height="790" rx="44"/>
+    <rect class="screen" x="90" y="154" width="370" height="742" rx="30"/>
+    <rect fill="#111827" x="210" y="142" width="130" height="16" rx="8"/>
+  </g>
+
+  <text class="text section" x="118" y="188">User UI：现场咨询</text>
+
+  <!-- Location header -->
+  <rect class="soft" x="110" y="204" width="330" height="64" rx="14"/>
+  <circle class="blue" cx="132" cy="229" r="8"/>
+  <text class="text small bold" x="148" y="227">当前位置：目标铺位门口</text>
+  <text class="text tiny muted" x="148" y="250">上海 · 徐汇区 · 距离 18m · 置信度中</text>
+  <rect class="chip" x="350" y="220" width="72" height="28" rx="14"/>
+  <text class="text tiny blue" x="365" y="239">重选点</text>
+
+  <!-- Agent step bar -->
+  <rect class="chip-yellow" x="110" y="282" width="330" height="38" rx="19"/>
+  <text class="text small yellow" x="128" y="306">正在查询 500 米内商铺和竞品...</text>
+
+  <!-- Chat bubbles -->
+  <rect fill="#eef2ff" x="186" y="338" width="238" height="58" rx="18"/>
+  <text class="text small" x="204" y="363">我就在铺子门口，房租</text>
+  <text class="text small" x="204" y="384">8000，想做米饭快餐。</text>
+
+  <rect class="panel" x="112" y="412" width="276" height="92" rx="18"/>
+  <text class="text small bold" x="130" y="440">先别急，我先算账。</text>
+  <text class="text small muted" x="130" y="466">已识别：开店前地址评估</text>
+  <text class="text small muted" x="130" y="488">还缺：人工、毛利率、预算来源</text>
+
+  <!-- Finance card -->
+  <rect class="panel" x="112" y="522" width="328" height="142" rx="18"/>
+  <text class="text section" x="130" y="550">实时算账表</text>
+  <line class="line" x1="130" y1="564" x2="422" y2="564"/>
+  <text class="text small muted" x="130" y="590">房租元/月</text>
+  <text class="text small bold" x="350" y="590">8000</text>
+  <text class="text small muted" x="130" y="618">每月人工</text>
+  <text class="text small bold" x="350" y="618">待补</text>
+  <text class="text small muted" x="130" y="646">日盈亏平衡点</text>
+  <text class="text small bold blue" x="332" y="646">计算中</text>
+
+  <!-- Live params sheet preview -->
+  <rect fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2" x="90" y="704" width="370" height="192" rx="28"/>
+  <rect fill="#d8dde6" x="247" y="718" width="56" height="5" rx="3"/>
+  <text class="text section" x="116" y="754">实时参数</text>
+  <rect class="chip-green" x="306" y="733" width="116" height="30" rx="15"/>
+  <text class="text tiny green" x="323" y="753">公开参数</text>
+  <text class="text small muted" x="116" y="790">房租</text>
+  <text class="text small bold" x="338" y="790">8000</text>
+  <text class="text small muted" x="116" y="824">地址评分</text>
+  <text class="text small bold yellow" x="348" y="824">查询中</text>
+  <text class="text small muted" x="116" y="858">品类适配</text>
+  <text class="text small bold" x="348" y="858">待评估</text>
+
+  <!-- Input bar -->
+  <rect fill="#f8fafc" x="112" y="848" width="328" height="36" rx="18"/>
+  <circle fill="#2563eb" cx="136" cy="866" r="13"/>
+  <text fill="#ffffff" font-family="Arial" font-size="16" x="131" y="872">●</text>
+  <text class="text small muted" x="158" y="872">输入文字 / 拍门头 / 语音P2</text>
+
+  <!-- Public event stream -->
+  <g>
+    <text class="text section" x="540" y="150">User UI 可见流式事件</text>
+    <rect class="panel" x="540" y="170" width="360" height="280" rx="18"/>
+    <rect class="chip" x="566" y="198" width="138" height="32" rx="16"/>
+    <text class="text small blue" x="584" y="219">message.delta</text>
+    <text class="text small muted" x="566" y="250">Agent 回复逐句出现</text>
+
+    <rect class="chip-green" x="566" y="278" width="112" height="32" rx="16"/>
+    <text class="text small green" x="584" y="299">slot.patch</text>
+    <text class="text small muted" x="566" y="330">房租、人工、毛利率实时入表</text>
+
+    <rect class="chip-yellow" x="566" y="358" width="116" height="32" rx="16"/>
+    <text class="text small yellow" x="584" y="379">card.patch</text>
+    <text class="text small muted" x="566" y="410">算账卡、地址卡、结论卡更新</text>
+  </g>
+
+  <!-- Debug UI dashboard -->
+  <g class="shadow">
+    <rect class="panel" x="945" y="130" width="420" height="790" rx="26"/>
+  </g>
+  <text class="text section" x="975" y="174">Debug UI：调用路径与隐藏评分</text>
+  <text class="text tiny muted" x="975" y="199">仅开发 / 运营 / 质检可见</text>
+
+  <!-- DAG -->
+  <rect class="soft" x="975" y="222" width="360" height="276" rx="18"/>
+  <text class="text section" x="995" y="252">Agent DAG</text>
+  <g>
+    <rect class="chip" x="1010" y="276" width="130" height="34" rx="17"/>
+    <text class="text tiny blue" x="1030" y="298">IntentRouter</text>
+    <line class="line" x1="1075" y1="310" x2="1075" y2="334"/>
+    <rect class="chip" x="1010" y="334" width="130" height="34" rx="17"/>
+    <text class="text tiny blue" x="1033" y="356">SlotFiller</text>
+    <line class="line" x1="1075" y1="368" x2="1075" y2="392"/>
+    <rect class="chip-green" x="990" y="392" width="170" height="34" rx="17"/>
+    <text class="text tiny green" x="1015" y="414">KillLineEngine</text>
+
+    <rect class="chip-yellow" x="1175" y="334" width="138" height="34" rx="17"/>
+    <text class="text tiny yellow" x="1190" y="356">LocationIntel</text>
+    <line class="line" x1="1140" y1="351" x2="1175" y2="351"/>
+    <rect class="chip-red" x="1175" y="392" width="138" height="34" rx="17"/>
+    <text class="text tiny red" x="1194" y="414">HiddenScore</text>
+    <line class="line" x1="1244" y1="368" x2="1244" y2="392"/>
+    <rect class="chip" x="1080" y="448" width="160" height="34" rx="17"/>
+    <text class="text tiny blue" x="1105" y="470">ResponseComposer</text>
+    <line class="line" x1="1075" y1="426" x2="1160" y2="448"/>
+    <line class="line" x1="1244" y1="426" x2="1160" y2="448"/>
+  </g>
+
+  <!-- Hidden scores -->
+  <rect class="soft" x="975" y="522" width="360" height="158" rx="18"/>
+  <text class="text section" x="995" y="552">隐藏参数</text>
+  <text class="text small muted" x="995" y="584">表达清晰度</text>
+  <rect fill="#fee2e2" x="1200" y="566" width="86" height="24" rx="12"/>
+  <text class="text tiny red" x="1222" y="583">低 38</text>
+  <text class="text small muted" x="995" y="618">执行记录</text>
+  <rect fill="#fff7df" x="1200" y="600" width="86" height="24" rx="12"/>
+  <text class="text tiny yellow" x="1220" y="617">中 55</text>
+  <text class="text small muted" x="995" y="652">位置判断偏差</text>
+  <rect fill="#fee2e2" x="1200" y="634" width="86" height="24" rx="12"/>
+  <text class="text tiny red" x="1222" y="651">高</text>
+
+  <!-- Tool log -->
+  <rect class="soft" x="975" y="704" width="360" height="176" rx="18"/>
+  <text class="text section" x="995" y="734">Tool Calls</text>
+  <text class="text tiny muted" x="995" y="766">KillLineEngine · completed · 42ms</text>
+  <text class="text tiny muted" x="995" y="794">AmapProvider.searchAround · running</text>
+  <text class="text tiny muted" x="995" y="822">CaseMatchEngine · pending</text>
+  <text class="text tiny muted" x="995" y="850">LLMExtractor · hidden capability score</text>
+
+  <!-- Connectors -->
+  <path class="line" d="M 480 340 C 520 330, 520 230, 540 220"/>
+  <path class="line" d="M 900 310 C 925 310, 925 310, 945 310"/>
+  <path class="line" d="M 900 410 C 930 520, 930 600, 945 620"/>
+
+  <!-- Legend -->
+  <rect class="panel" x="540" y="500" width="360" height="244" rx="18"/>
+  <text class="text section" x="566" y="532">可见性规则</text>
+  <rect class="chip-green" x="566" y="560" width="96" height="30" rx="15"/>
+  <text class="text tiny green" x="588" y="580">public</text>
+  <text class="text small muted" x="682" y="580">房租、地址评分、结论卡</text>
+  <rect class="chip" x="566" y="606" width="96" height="30" rx="15"/>
+  <text class="text tiny blue" x="586" y="626">editable</text>
+  <text class="text small muted" x="682" y="626">日销、人工、毛利率</text>
+  <rect class="chip-yellow" x="566" y="652" width="112" height="30" rx="15"/>
+  <text class="text tiny yellow" x="585" y="672">report_only</text>
+  <text class="text small muted" x="692" y="672">最终报告阶段展示</text>
+  <rect class="chip-red" x="566" y="698" width="122" height="30" rx="15"/>
+  <text class="text tiny red" x="584" y="718">private_debug</text>
+  <text class="text small muted" x="704" y="718">经营能力原始分不展示</text>
+
+  <text class="text tiny muted" x="64" y="948">文件：docs/mobile-ui-wireframe.svg · 设计重点：移动现场咨询、流式事件、文字输入、语音P2、实时参数、User UI / Debug UI 双视图。</text>
+</svg>

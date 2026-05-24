@@ -1,0 +1,223 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1040" viewBox="0 0 1600 1040">
+  <defs>
+    <style>
+      .bg { fill: #eef1f5; }
+      .panel { fill: #ffffff; stroke: #cfd7e3; stroke-width: 1.2; }
+      .soft { fill: #f8fafc; stroke: #d9e1ec; stroke-width: 1; }
+      .darkbar { fill: #111827; }
+      .tab { fill: #eef4ff; stroke: #c7dcff; stroke-width: 1; }
+      .greenbox { fill: #eaf8f0; stroke: #a9ddb8; stroke-width: 1; }
+      .yellowbox { fill: #fff7df; stroke: #efd38c; stroke-width: 1; }
+      .redbox { fill: #fff0ee; stroke: #eda79f; stroke-width: 1; }
+      .graybox { fill: #f2f4f7; stroke: #d0d5dd; stroke-width: 1; }
+      .text { font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", Arial, sans-serif; fill: #172033; }
+      .white { fill: #ffffff; }
+      .muted { fill: #667085; }
+      .blue { fill: #2563eb; }
+      .green { fill: #16a34a; }
+      .yellow { fill: #d97706; }
+      .red { fill: #dc2626; }
+      .purple { fill: #7c3aed; }
+      .small { font-size: 14px; }
+      .tiny { font-size: 12px; }
+      .normal { font-size: 17px; }
+      .section { font-size: 18px; font-weight: 700; }
+      .title { font-size: 28px; font-weight: 700; }
+      .bold { font-weight: 700; }
+      .line { stroke: #b8c2d2; stroke-width: 1.4; fill: none; }
+      .dash { stroke: #b8c2d2; stroke-width: 1.4; fill: none; stroke-dasharray: 6 5; }
+      .shadow { filter: drop-shadow(0 16px 28px rgba(15, 23, 42, 0.12)); }
+      .mono { font-family: Consolas, "SFMono-Regular", Menlo, monospace; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1600" height="1040"/>
+
+  <!-- Top header -->
+  <rect class="darkbar" x="0" y="0" width="1600" height="74"/>
+  <text class="white title" x="34" y="46">Debug UI 控制台</text>
+  <text class="white small" x="310" y="45">餐饮创业 Agent · 调用路径 / 隐藏评分 / 工具审计 / RAG / LLM</text>
+  <rect fill="#1f2937" x="1130" y="18" width="136" height="38" rx="19"/>
+  <text class="white small" x="1154" y="42">env: staging</text>
+  <rect fill="#1f2937" x="1280" y="18" width="128" height="38" rx="19"/>
+  <text class="white small" x="1304" y="42">model: gpt</text>
+  <rect fill="#2563eb" x="1420" y="18" width="138" height="38" rx="19"/>
+  <text class="white small bold" x="1447" y="42">Export Trace</text>
+
+  <!-- Layout panels -->
+  <rect class="panel shadow" x="24" y="94" width="280" height="914" rx="18"/>
+  <rect class="panel shadow" x="324" y="94" width="850" height="914" rx="18"/>
+  <rect class="panel shadow" x="1194" y="94" width="382" height="914" rx="18"/>
+
+  <!-- Sidebar -->
+  <text class="text section" x="48" y="132">会话列表</text>
+  <rect class="soft" x="48" y="152" width="232" height="40" rx="12"/>
+  <text class="text small muted" x="64" y="177">搜索 session / 手机号 / 地址</text>
+
+  <rect class="tab" x="48" y="212" width="68" height="30" rx="15"/>
+  <text class="text tiny blue" x="66" y="232">全部</text>
+  <rect class="graybox" x="124" y="212" width="68" height="30" rx="15"/>
+  <text class="text tiny muted" x="142" y="232">异常</text>
+  <rect class="graybox" x="200" y="212" width="80" height="30" rx="15"/>
+  <text class="text tiny muted" x="218" y="232">高风险</text>
+
+  <g>
+    <rect class="greenbox" x="48" y="264" width="232" height="86" rx="14"/>
+    <text class="text small bold" x="64" y="290">S-2405-001</text>
+    <text class="text tiny muted" x="64" y="314">开店前地址评估 · 米饭快餐</text>
+    <text class="text tiny green" x="64" y="336">running · can_open_candidate</text>
+  </g>
+  <g>
+    <rect class="soft" x="48" y="362" width="232" height="86" rx="14"/>
+    <text class="text small bold" x="64" y="388">S-2405-002</text>
+    <text class="text tiny muted" x="64" y="412">亏损诊断 · 奶茶</text>
+    <text class="text tiny red" x="64" y="434">needs_review · high_loss</text>
+  </g>
+  <g>
+    <rect class="soft" x="48" y="460" width="232" height="86" rx="14"/>
+    <text class="text small bold" x="64" y="486">S-2405-003</text>
+    <text class="text tiny muted" x="64" y="510">加盟风险 · 汉堡</text>
+    <text class="text tiny yellow" x="64" y="532">tool_waiting · quack_score</text>
+  </g>
+
+  <text class="text section" x="48" y="592">Trace 摘要</text>
+  <rect class="soft" x="48" y="614" width="232" height="144" rx="14"/>
+  <text class="text tiny muted" x="64" y="642">trace_id</text>
+  <text class="text tiny mono" x="64" y="664">tr_7f2a91c...</text>
+  <text class="text tiny muted" x="64" y="692">latency</text>
+  <text class="text tiny mono green" x="64" y="714">2380ms</text>
+  <text class="text tiny muted" x="64" y="742">visible_policy</text>
+  <text class="text tiny mono blue" x="64" y="764">user_safe_only</text>
+
+  <!-- Center title -->
+  <text class="text section" x="354" y="132">Agent 调用 DAG</text>
+  <text class="text tiny muted" x="504" y="132">每个节点可点开查看输入、输出、耗时、置信度和影响结论程度</text>
+
+  <!-- DAG board -->
+  <rect class="soft" x="354" y="154" width="790" height="330" rx="18"/>
+
+  <!-- DAG nodes -->
+  <rect class="tab" x="392" y="205" width="132" height="42" rx="21"/>
+  <text class="text tiny blue bold" x="420" y="231">IntentRouter</text>
+
+  <line class="line" x1="524" y1="226" x2="574" y2="226"/>
+  <rect class="tab" x="574" y="205" width="126" height="42" rx="21"/>
+  <text class="text tiny blue bold" x="605" y="231">SlotFiller</text>
+
+  <line class="line" x1="700" y1="226" x2="754" y2="226"/>
+  <rect class="greenbox" x="754" y="160" width="162" height="42" rx="21"/>
+  <text class="text tiny green bold" x="785" y="186">KillLineEngine</text>
+
+  <rect class="yellowbox" x="754" y="218" width="162" height="42" rx="21"/>
+  <text class="text tiny yellow bold" x="780" y="244">LocationIntel</text>
+
+  <rect class="tab" x="754" y="276" width="162" height="42" rx="21"/>
+  <text class="text tiny blue bold" x="780" y="302">CategoryIntel</text>
+
+  <rect class="redbox" x="754" y="334" width="162" height="42" rx="21"/>
+  <text class="text tiny red bold" x="781" y="360">HiddenScorer</text>
+
+  <line class="line" x1="916" y1="181" x2="980" y2="260"/>
+  <line class="line" x1="916" y1="239" x2="980" y2="260"/>
+  <line class="line" x1="916" y1="297" x2="980" y2="260"/>
+  <line class="line" x1="916" y1="355" x2="980" y2="260"/>
+
+  <rect class="graybox" x="980" y="236" width="132" height="48" rx="24"/>
+  <text class="text tiny bold" x="1011" y="265">Decision</text>
+
+  <line class="line" x1="1046" y1="284" x2="1046" y2="348"/>
+  <rect class="tab" x="966" y="348" width="160" height="44" rx="22"/>
+  <text class="text tiny blue bold" x="994" y="374">ResponseComposer</text>
+
+  <line class="dash" x1="835" y1="260" x2="835" y2="420"/>
+  <rect class="soft" x="642" y="420" width="386" height="42" rx="12"/>
+  <text class="text tiny muted" x="662" y="446">parallel tools: POI search / case match / rule scoring / LLM extraction</text>
+
+  <!-- Event stream -->
+  <text class="text section" x="354" y="526">Raw Event Stream</text>
+  <rect class="soft" x="354" y="548" width="790" height="180" rx="18"/>
+  <text class="text tiny mono muted" x="378" y="580">00:00.018  session.started        session_id=S-2405-001</text>
+  <text class="text tiny mono blue" x="378" y="608">00:00.122  agent.path.patch       IntentRouter running</text>
+  <text class="text tiny mono green" x="378" y="636">00:00.310  slot.patch             monthly_rent=8000 visibility=editable</text>
+  <text class="text tiny mono yellow" x="378" y="664">00:00.860  tool.started           LocationIntelligenceEngine</text>
+  <text class="text tiny mono red" x="378" y="692">00:01.220  hidden.patch           founder.execution_score=4 private_debug</text>
+  <text class="text tiny mono blue" x="378" y="720">00:02.120  message.delta          "我先把账和地址分开看..."</text>
+
+  <!-- Tool detail -->
+  <text class="text section" x="354" y="770">Selected Node Detail</text>
+  <rect class="soft" x="354" y="792" width="790" height="184" rx="18"/>
+  <text class="text tiny muted" x="378" y="824">node</text>
+  <text class="text tiny mono bold" x="446" y="824">LocationIntelligenceEngine</text>
+  <text class="text tiny muted" x="378" y="852">input</text>
+  <text class="text tiny mono" x="446" y="852">{lng: 116.397, lat: 39.908, category: "米饭快餐", radius: [50,100,500]}</text>
+  <text class="text tiny muted" x="378" y="880">output</text>
+  <text class="text tiny mono green" x="446" y="880">{address_score: 82, competitors_500m: 6, strong_customer_source: "school"}</text>
+  <text class="text tiny muted" x="378" y="908">impact</text>
+  <text class="text tiny mono blue" x="446" y="908">positive_evidence: address supports can_open</text>
+  <text class="text tiny muted" x="378" y="936">visibility</text>
+  <text class="text tiny mono yellow" x="446" y="936">public summary + debug raw payload</text>
+
+  <!-- Right inspector -->
+  <text class="text section" x="1224" y="132">Session Inspector</text>
+  <rect class="soft" x="1224" y="154" width="322" height="58" rx="14"/>
+  <text class="text tiny muted" x="1244" y="178">current_state</text>
+  <text class="text small bold blue" x="1244" y="200">location_check / tool_running</text>
+
+  <!-- tabs -->
+  <rect class="tab" x="1224" y="232" width="58" height="30" rx="15"/>
+  <text class="text tiny blue" x="1240" y="252">Slots</text>
+  <rect class="graybox" x="1290" y="232" width="66" height="30" rx="15"/>
+  <text class="text tiny muted" x="1304" y="252">Hidden</text>
+  <rect class="graybox" x="1364" y="232" width="58" height="30" rx="15"/>
+  <text class="text tiny muted" x="1378" y="252">Tools</text>
+  <rect class="graybox" x="1430" y="232" width="58" height="30" rx="15"/>
+  <text class="text tiny muted" x="1448" y="252">RAG</text>
+
+  <!-- slots -->
+  <rect class="soft" x="1224" y="280" width="322" height="212" rx="14"/>
+  <text class="text small bold" x="1244" y="312">Visible Slots</text>
+  <text class="text tiny muted" x="1244" y="342">monthly_rent</text>
+  <text class="text tiny mono" x="1420" y="342">8000</text>
+  <text class="text tiny muted" x="1244" y="372">category</text>
+  <text class="text tiny mono" x="1420" y="372">米饭快餐</text>
+  <text class="text tiny muted" x="1244" y="402">location_score</text>
+  <text class="text tiny mono green" x="1420" y="402">82</text>
+  <text class="text tiny muted" x="1244" y="432">daily_breakeven</text>
+  <text class="text tiny mono yellow" x="1420" y="432">pending</text>
+  <text class="text tiny muted" x="1244" y="462">verdict_preview</text>
+  <text class="text tiny mono blue" x="1390" y="462">can_open?</text>
+
+  <!-- hidden scores -->
+  <rect class="soft" x="1224" y="512" width="322" height="210" rx="14"/>
+  <text class="text small bold" x="1244" y="544">Hidden Scores</text>
+  <text class="text tiny muted" x="1244" y="576">clarity_score</text>
+  <rect class="greenbox" x="1404" y="558" width="86" height="24" rx="12"/>
+  <text class="text tiny green" x="1426" y="575">82</text>
+  <text class="text tiny muted" x="1244" y="612">execution_score</text>
+  <rect class="yellowbox" x="1404" y="594" width="86" height="24" rx="12"/>
+  <text class="text tiny yellow" x="1426" y="611">55</text>
+  <text class="text tiny muted" x="1244" y="648">location_bias</text>
+  <rect class="greenbox" x="1404" y="630" width="86" height="24" rx="12"/>
+  <text class="text tiny green" x="1426" y="647">low</text>
+  <text class="text tiny muted" x="1244" y="684">user_performance_risk</text>
+  <rect class="greenbox" x="1404" y="666" width="86" height="24" rx="12"/>
+  <text class="text tiny green" x="1422" y="683">none</text>
+
+  <!-- RAG and safety -->
+  <rect class="soft" x="1224" y="742" width="322" height="234" rx="14"/>
+  <text class="text small bold" x="1244" y="774">RAG / Safety / LLM</text>
+  <text class="text tiny muted" x="1244" y="806">rag_hit_1</text>
+  <text class="text tiny mono" x="1328" y="806">cases/成功案例/001...</text>
+  <text class="text tiny muted" x="1244" y="836">rag_hit_2</text>
+  <text class="text tiny mono" x="1328" y="836">corpus/03-选址...</text>
+  <text class="text tiny muted" x="1244" y="866">llm_run</text>
+  <text class="text tiny mono blue" x="1328" y="866">ResponseComposer#12</text>
+  <text class="text tiny muted" x="1244" y="896">safety</text>
+  <text class="text tiny mono green" x="1328" y="896">pass</text>
+  <text class="text tiny muted" x="1244" y="926">user_visible</text>
+  <text class="text tiny mono yellow" x="1328" y="926">hide hidden scores</text>
+  <text class="text tiny muted" x="1244" y="956">audit</text>
+  <text class="text tiny mono" x="1328" y="956">exportable json</text>
+
+  <text class="text tiny muted" x="34" y="1020">文件：docs/debug-ui-wireframe.svg · Debug UI 重点：审计每一次判断，确认“能做/不能做”都来自数据、规则、工具和可追溯证据。</text>
+</svg>
