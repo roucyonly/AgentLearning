@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1440" height="980" viewBox="0 0 1440 980">
+  <metadata id="design-map">doc=docs/11-ui-svg-coding-map.md; screen=mobile.session.live; route=/sessions/:sessionId/live; refs=mobile.session.live.shell,mobile.session.live.locationHeader,mobile.session.live.publicAgentPath,mobile.session.live.chatStream,mobile.session.live.financeCard,mobile.session.live.slotSheet,mobile.session.live.locationCard,mobile.session.live.categoryCard,mobile.session.live.inputDock,mobile.session.live.reportEntry</metadata>
   <defs>
     <style>
       .bg { fill: #f5f6f8; }

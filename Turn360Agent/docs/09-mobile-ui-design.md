@@ -5,6 +5,8 @@ UI 图见：
 - `mobile-ui-wireframe.svg`：移动端 User UI / Debug UI 概览。
 - `debug-ui-wireframe.svg`：Debug UI 控制台详细设计。
 
+编码关联见：`11-ui-svg-coding-map.md`。前端实现时以其中的 `Design Ref` 绑定页面、组件、事件和 SVG 区域。
+
 ## 1. 设计目标
 
 移动端是本产品的主战场。用户很可能站在目标铺位门口、商场里、街边或自己店里，边看现场边问 Agent。
@@ -165,7 +167,7 @@ Agent 流式文本应能插入卡片。例如：
 
 - 表达清晰度分
 - 数据掌握分
-- 调研执行力分
+- 执行稳定性分
 - 运营认知分
 - 用户位置判断偏差分
 - 用户是否附和 Agent

@@ -18,6 +18,7 @@
 14. `10-session-admin-report-design.md`：Session 档案、用户区分、管理员角色、报告结构。
 15. `session-admin-ui-wireframe.svg`：管理员 Session 控制台线框图。
 16. `report-ui-wireframe.svg`：用户最终诊断报告 UI 图。
+17. `11-ui-svg-coding-map.md`：UI、SVG 原型、前端路由、组件和流式事件的编码关联表。
 
 开发时建议先实现：
 

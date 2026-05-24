@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1040" viewBox="0 0 1600 1040">
+  <metadata id="design-map">doc=docs/11-ui-svg-coding-map.md; screen=debug.session.console; route=/debug/sessions/:sessionId; refs=debug.session.console.shell,debug.session.console.sessionList,debug.session.console.traceHeader,debug.session.console.engineDag,debug.session.console.hiddenScores,debug.session.console.toolCalls,debug.session.console.ragHits,debug.session.console.rawEvents,debug.session.console.promptViewer</metadata>
   <defs>
     <style>
       .bg { fill: #eef1f5; }

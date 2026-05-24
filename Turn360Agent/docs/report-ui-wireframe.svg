@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1080" viewBox="0 0 1440 1080">
+  <metadata id="design-map">doc=docs/11-ui-svg-coding-map.md; screen=report.session.result; route=/sessions/:sessionId/report/:reportId; refs=report.session.result.shell,report.session.result.verdict,report.session.result.situation,report.session.result.finance,report.session.result.location,report.session.result.category,report.session.result.operator,report.session.result.evidence,report.session.result.actionPlan,report.session.result.stopLoss,report.session.result.appendix</metadata>
   <defs>
     <style>
       .bg { fill: #f4f6f9; }

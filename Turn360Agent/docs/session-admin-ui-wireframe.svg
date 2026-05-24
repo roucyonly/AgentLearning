@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1040" viewBox="0 0 1600 1040">
+  <metadata id="design-map">doc=docs/11-ui-svg-coding-map.md; screen=admin.session.case; route=/admin/sessions/:sessionId; refs=admin.session.case.shell,admin.session.case.inbox,admin.session.case.profile,admin.session.case.timeline,admin.session.case.slots,admin.session.case.engineSummary,admin.session.case.hiddenScores,admin.session.case.actions,admin.session.case.reportReview</metadata>
   <defs>
     <style>
       .bg { fill: #eef1f5; }

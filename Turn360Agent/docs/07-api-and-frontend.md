@@ -39,7 +39,10 @@
 项目                 金额
 每月人工
 水/电/杂费
+固定运营费用
+阶段性投放费用
 毛利率
+有效毛利率
 
 建店成本
 每日固定成本
@@ -166,7 +169,14 @@ POST /api/tools/kill-line
   "first_batch_material": 5000,
   "monthly_labor": 8000,
   "monthly_utilities": 2000,
+  "monthly_fixed_operation_cost": 1500,
+  "monthly_campaign_cost": 3000,
   "gross_margin": 0.55,
+  "effective_gross_margin": 0.48,
+  "platform_commission_rate": 0.18,
+  "daily_delivery_subsidy": 80,
+  "daily_packaging_cost": 60,
+  "daily_marketing_discount": 120,
   "current_daily_revenue": 800
 }
 ```
@@ -178,6 +188,7 @@ POST /api/tools/kill-line
   "build_cost": 81662,
   "daily_fixed_cost": 555.53,
   "daily_breakeven": 1010.06,
+  "effective_gross_margin": 0.48,
   "breakeven_achievement_rate": 0.792,
   "finance_status": "orange",
   "risk_flags": []

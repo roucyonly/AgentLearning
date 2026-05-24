@@ -203,6 +203,8 @@ type Slot = {
 
 UI 图：`session-admin-ui-wireframe.svg`
 
+编码关联见：`11-ui-svg-coding-map.md` 中的 `admin.session.case.*`。
+
 管理员看的不是“这一轮问答”，而是一个完整 Session 档案。
 
 核心区域：
@@ -222,6 +224,8 @@ UI 图：`session-admin-ui-wireframe.svg`
 ## 6. 最终报告设计
 
 UI 图：`report-ui-wireframe.svg`
+
+编码关联见：`11-ui-svg-coding-map.md` 中的 `report.session.result.*`。
 
 报告不是聊天总结，而是对当前 Session 的结构化诊断。
 
