@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createDemoSession, fetchSessionView, patchSessionSlots, streamSessionUrl } from "./api";
+import { createDemoSession, fetchSessionView, patchSessionSlots, sendChatMessage, streamSessionUrl } from "./api";
 import type { ConsultationSession, EvaluationResult, SessionSlot, SessionView, SlotPatchValue, StreamEvent, Verdict } from "./types";
 
 const verdictLabel: Record<Verdict, string> = {
@@ -43,6 +43,7 @@ export default function App() {
   const [events, setEvents] = useState<StreamEvent[]>([]);
   const [patchingSlot, setPatchingSlot] = useState<string | null>(null);
   const [patchMessage, setPatchMessage] = useState("参数已同步");
+  const [sendingMessage, setSendingMessage] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -91,6 +92,15 @@ export default function App() {
     setPatchingSlot(null);
   }
 
+  async function handleSendMessage(message: string) {
+    if (!sessionId || !message.trim()) return;
+    setSendingMessage(true);
+    const nextSession = await sendChatMessage(sessionId, message.trim(), view);
+    setSession(nextSession);
+    setEvents(nextSession.events.slice(-8));
+    setSendingMessage(false);
+  }
+
   if (!session) {
     return <main className="loading">正在建立咨询 Session...</main>;
   }
@@ -109,8 +119,10 @@ export default function App() {
           session={session}
           events={events}
           onPatchSlot={handleSlotPatch}
+          onSendMessage={handleSendMessage}
           patchingSlot={patchingSlot}
           patchMessage={patchMessage}
+          sendingMessage={sendingMessage}
         />
       )}
       {view === "report" && <ReportView session={session} />}
@@ -124,16 +136,21 @@ function UserSession({
   session,
   events,
   onPatchSlot,
+  onSendMessage,
   patchingSlot,
-  patchMessage
+  patchMessage,
+  sendingMessage
 }: {
   session: ConsultationSession;
   events: StreamEvent[];
   onPatchSlot: (slotId: string, value: SlotPatchValue) => Promise<void>;
+  onSendMessage: (message: string) => Promise<void>;
   patchingSlot: string | null;
   patchMessage: string;
+  sendingMessage: boolean;
 }) {
   const result = session.evaluation;
+  const [draftMessage, setDraftMessage] = useState("");
   const latestEvent = events[events.length - 1] ?? session.events[session.events.length - 1];
   const financeSlots = pickSlots(session.visible_slots, financeSlotIds);
   const locationSlots = pickSlots(session.visible_slots, locationSlotIds);
@@ -170,6 +187,28 @@ function UserSession({
         ))}
       </div>
 
+      <section className="conversation-panel" data-design-ref="mobile.session.live.chatStream">
+        <header>
+          <h2>勇哥式引导</h2>
+          <small>{session.current_question}</small>
+        </header>
+        <div className="message-list">
+          {session.messages.slice(-6).map((message, index) => (
+            <div className={`message ${message.role}`} key={`${message.created_at}-${index}`}>
+              <p>{message.content}</p>
+              {message.slot_updates.length > 0 && <small>已更新：{message.slot_updates.join("、")}</small>}
+            </div>
+          ))}
+        </div>
+        <div className="starter-chips">
+          {["我要开店", "房租12000，人工7000，毛利率60，客单25", "门前30分钟80人，同类店订单100单"].map((item) => (
+            <button key={item} disabled={sendingMessage} onClick={() => void onSendMessage(item)}>
+              {item}
+            </button>
+          ))}
+        </div>
+      </section>
+
       <section className="workbench" data-design-ref="mobile.session.live.slotSheet">
         <header>
           <h2>实时参数</h2>
@@ -194,8 +233,25 @@ function UserSession({
 
       <footer className="input-dock" data-design-ref="mobile.session.live.inputDock">
         <button title="定位">定位</button>
-        <input placeholder="补充房租、人工、毛利率或现场人流..." />
-        <button title="发送">发送</button>
+        <input
+          value={draftMessage}
+          placeholder="直接说：我要在南京开咖啡店，房租..."
+          disabled={sendingMessage}
+          onChange={(event) => setDraftMessage(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              void onSendMessage(draftMessage).then(() => setDraftMessage(""));
+            }
+          }}
+        />
+        <button
+          title="发送"
+          disabled={sendingMessage || !draftMessage.trim()}
+          onClick={() => void onSendMessage(draftMessage).then(() => setDraftMessage(""))}
+        >
+          {sendingMessage ? "分析中" : "发送"}
+        </button>
       </footer>
     </section>
   );

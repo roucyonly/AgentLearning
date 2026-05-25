@@ -86,6 +86,14 @@ export type StreamEvent = {
   payload: Record<string, unknown>;
 };
 
+export type ConversationMessage = {
+  role: "assistant" | "user";
+  content: string;
+  created_at: string;
+  visibility: SlotVisibility | "public";
+  slot_updates: string[];
+};
+
 export type ConsultationSession = {
   session_id: string;
   scenario: "pre_opening";
@@ -97,6 +105,8 @@ export type ConsultationSession = {
   visible_slots: SessionSlot[];
   hidden_slots?: SessionSlot[];
   events: StreamEvent[];
+  messages: ConversationMessage[];
+  current_question: string;
   raw_input?: Record<string, unknown>;
   debug_summary?: Record<string, unknown>;
   admin_summary?: {

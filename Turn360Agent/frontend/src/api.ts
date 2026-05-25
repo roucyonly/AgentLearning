@@ -87,6 +87,47 @@ export async function patchSessionSlots(
   }
 }
 
+export async function sendChatMessage(
+  sessionId: string,
+  message: string,
+  view: SessionView
+): Promise<ConsultationSession> {
+  try {
+    const response = await fetch(`/api/sessions/${encodeURIComponent(sessionId)}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, view })
+    });
+    if (!response.ok) {
+      throw new Error(`chat responded ${response.status}`);
+    }
+    return (await response.json()) as ConsultationSession;
+  } catch {
+    const fallback = fallbackSession(view);
+    return {
+      ...fallback,
+      session_id: sessionId,
+      messages: [
+        ...fallback.messages,
+        {
+          role: "user",
+          content: message,
+          created_at: new Date().toISOString(),
+          visibility: "public",
+          slot_updates: []
+        },
+        {
+          role: "assistant",
+          content: "我这边暂时没连上后端，但你可以继续补房租、人工、毛利率和现场人流。",
+          created_at: new Date().toISOString(),
+          visibility: "public",
+          slot_updates: []
+        }
+      ]
+    };
+  }
+}
+
 export function streamSessionUrl(sessionId: string, view: SessionView) {
   const streamView = view === "debug" ? "debug" : "user";
   return `/api/sessions/${encodeURIComponent(sessionId)}/chat/stream?view=${streamView}`;
@@ -189,6 +230,16 @@ function fallbackSession(view: SessionView): ConsultationSession {
         payload: {}
       }
     ],
+    messages: [
+      {
+        role: "assistant",
+        content: "你要开店，先别急着看感觉。你直接告诉我：在哪个城市/位置，想做什么品类，房租、人工、毛利率、客单价大概多少。",
+        created_at: now,
+        visibility: "public",
+        slot_updates: []
+      }
+    ],
+    current_question: "先告诉我城市、位置、品类、房租和人工。",
     raw_input: view === "debug" || view === "admin" ? demoPreOpeningRequest : undefined,
     debug_summary: view === "debug" || view === "admin" ? { event_count: 1, hidden_slot_count: 2 } : undefined,
     admin_summary:

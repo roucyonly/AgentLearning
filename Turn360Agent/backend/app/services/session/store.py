@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from typing import Any
@@ -48,6 +49,41 @@ NUMERIC_LOCATION_FIELDS = {"longitude", "latitude", "target_customer_flow_30min"
 
 CATEGORY_SLOT_FIELDS = {"category_name": "category_name", "category_demand_type": "demand_type"}
 
+CATEGORY_KEYWORDS = [
+    "米饭快餐",
+    "快餐",
+    "咖啡",
+    "奶茶",
+    "饮品",
+    "小吃",
+    "早餐",
+    "面馆",
+    "粉面",
+    "融合菜",
+    "火锅",
+    "烧烤",
+    "烘焙",
+]
+
+CITY_KEYWORDS = [
+    "北京",
+    "上海",
+    "广州",
+    "深圳",
+    "重庆",
+    "成都",
+    "杭州",
+    "南京",
+    "武汉",
+    "长沙",
+    "西安",
+    "南昌",
+    "黔江",
+    "苏州",
+    "无锡",
+    "合肥",
+]
+
 
 DEFAULT_PRE_OPENING_INPUT = PreOpeningEvaluationInput(
     session_id="demo-pre-opening",
@@ -93,6 +129,7 @@ class SessionRecord:
     input_payload: PreOpeningEvaluationInput
     evaluation: dict[str, Any]
     events: list[dict[str, Any]] = field(default_factory=list)
+    messages: list[dict[str, Any]] = field(default_factory=list)
 
 
 class SessionStore:
@@ -119,6 +156,7 @@ class SessionStore:
             input_payload=input_payload,
             evaluation=evaluation,
             events=build_stream_events(evaluation),
+            messages=initial_messages(now),
         )
         self._records[session_id] = record
         return record
@@ -173,9 +211,178 @@ class SessionStore:
         )
         return self.update_pre_opening(session_id, patched_payload)
 
+    def handle_chat_message(self, session_id: str, message: str) -> SessionRecord:
+        record = self.get(session_id)
+        if record is None:
+            raise KeyError(session_id)
+        text = message.strip()
+        if not text:
+            raise ValueError("message must not be empty")
+
+        now = utc_now()
+        record.messages.append(
+            {
+                "role": "user",
+                "content": text,
+                "created_at": now,
+                "visibility": "public",
+                "slot_updates": [],
+            }
+        )
+
+        updates = extract_slot_updates(text)
+        if updates:
+            record = self.patch_pre_opening_slots(session_id, updates)
+            reply = build_chat_reply(record, updates)
+        else:
+            reply = "我先没抓到能直接算账的数字。你按这句回我就行：城市、位置、品类、房租、人工、毛利率、客单价。"
+
+        record.messages.append(
+            {
+                "role": "assistant",
+                "content": reply,
+                "created_at": utc_now(),
+                "visibility": "public",
+                "slot_updates": list(updates.keys()),
+            }
+        )
+        return record
+
 
 def utc_now() -> str:
     return datetime.now(UTC).isoformat()
+
+
+def initial_messages(created_at: str) -> list[dict[str, Any]]:
+    return [
+        {
+            "role": "assistant",
+            "content": "你要开店，先别急着看感觉。你直接告诉我：在哪个城市/位置，想做什么品类，房租、人工、毛利率、客单价大概多少。我边听边把账算出来。",
+            "created_at": created_at,
+            "visibility": "public",
+            "slot_updates": [],
+        }
+    ]
+
+
+def extract_slot_updates(text: str) -> dict[str, Any]:
+    updates: dict[str, Any] = {}
+
+    numeric_patterns = [
+        ("monthly_rent", r"(?:房租|租金)[^\d]*(\d+(?:\.\d+)?)(万|w|W|元|块)?"),
+        ("monthly_labor", r"(?:人工|人力|员工工资)[^\d]*(\d+(?:\.\d+)?)(万|w|W|元|块)?"),
+        ("monthly_utilities", r"(?:水电|杂费|水电杂费)[^\d]*(\d+(?:\.\d+)?)(万|w|W|元|块)?"),
+        ("gross_margin_rate", r"(?:毛利率|毛利)[^\d]*(\d+(?:\.\d+)?)(%|％)?"),
+        ("average_ticket", r"(?:客单价|客单)[^\d]*(\d+(?:\.\d+)?)(元|块)?"),
+        ("cash_available", r"(?:现金|资金|预算|准备投|手里)[^\d]*(\d+(?:\.\d+)?)(万|w|W|元|块)?"),
+        ("area_sqm", r"(?:面积|平方)[^\d]*(\d+(?:\.\d+)?)(平|平方|㎡)?"),
+        ("deposit", r"(?:押金)[^\d]*(\d+(?:\.\d+)?)(万|w|W|元|块)?"),
+        ("transfer_fee", r"(?:转让费|中介费)[^\d]*(\d+(?:\.\d+)?)(万|w|W|元|块)?"),
+        ("franchise_or_training_fee", r"(?:加盟费|学习费|技术费)[^\d]*(\d+(?:\.\d+)?)(万|w|W|元|块)?"),
+        ("decoration_and_ads", r"(?:装修|广告)[^\d]*(\d+(?:\.\d+)?)(万|w|W|元|块)?"),
+        ("equipment", r"(?:设备)[^\d]*(\d+(?:\.\d+)?)(万|w|W|元|块)?"),
+        ("first_batch_material", r"(?:首批物料|物料|食材)[^\d]*(\d+(?:\.\d+)?)(万|w|W|元|块)?"),
+        ("storefront_flow_30min", r"(?:门前|人流|目标客群)[^\d]*(\d+(?:\.\d+)?)(人)?"),
+        ("comparable_orders", r"(?:同类店|附近店|竞品|日单|订单)[^\d]*(\d+(?:\.\d+)?)(单)?"),
+    ]
+    for slot_id, pattern in numeric_patterns:
+        match = re.search(pattern, text)
+        if match:
+            updates[slot_id] = amount_from_match(match)
+
+    flow_match = re.search(r"(?:门前|人流|目标客群)[^\d]*30\s*分钟[^\d]*(\d+(?:\.\d+)?)", text)
+    if flow_match:
+        updates["storefront_flow_30min"] = float(flow_match.group(1))
+
+    for city in CITY_KEYWORDS:
+        if city in text:
+            updates["city"] = city
+            break
+
+    address_match = re.search(r"(?:位置|地址|铺位|店址)(?:是|在|：|:)?([^，。,\n]{2,24})", text)
+    if address_match:
+        updates["address_text"] = address_match.group(1).strip()
+
+    for keyword in CATEGORY_KEYWORDS:
+        if keyword in text:
+            updates["category_name"] = normalize_category(keyword)
+            break
+
+    return updates
+
+
+def amount_from_match(match: re.Match[str]) -> float:
+    value = float(match.group(1))
+    unit = match.group(2) if match.lastindex and match.lastindex >= 2 else None
+    if unit in {"万", "w", "W"}:
+        value *= 10000
+    return value
+
+
+def normalize_category(keyword: str) -> str:
+    if keyword == "快餐":
+        return "米饭快餐"
+    return keyword
+
+
+def build_chat_reply(record: SessionRecord, updates: dict[str, Any]) -> str:
+    result = record.evaluation
+    captured = "、".join(slot_label(slot_id) for slot_id in updates)
+    question = next_question(record)
+    return (
+        f"我抓到了：{captured}。现在日盈亏平衡点是 {result['finance']['daily_breakeven']} 元，"
+        f"目标回本日销是 {result['finance']['target_daily_revenue']} 元，地址分 {result['location']['score']}。"
+        f"{question}"
+    )
+
+
+def next_question(record: SessionRecord) -> str:
+    payload = record.input_payload
+    location = payload.location
+    finance = payload.finance
+    category_name = payload.category.get("category_name")
+
+    if not location.get("city") or location.get("city") in {"unknown", "待确认"}:
+        return "先告诉我城市和具体铺位位置，别只说人流不错。"
+    if not category_name or category_name in {"unknown", "待确认品类"}:
+        return "你准备做什么品类？喝的、小吃、米面主食，还是正餐？"
+    if finance.monthly_rent <= 1:
+        return "房租一个月多少？押几付几？这个不说，账没法判断。"
+    if finance.monthly_labor <= 0:
+        return "人工怎么配？自己干、夫妻店，还是要请人？每月人工大概多少？"
+    if finance.gross_margin_rate <= 0:
+        return "毛利率按多少算？不会算就先说进货成本和售价，我帮你换。"
+    if finance.estimated_average_ticket <= 0:
+        return "客单价预计多少？目标订单数要靠这个算出来。"
+    if location.get("target_customer_flow_30min") is None:
+        return "现在做现场验证：你在门口数 30 分钟，目标客群过了多少人？"
+    if location.get("comparable_store_orders_per_day") is None:
+        return "再蹲一下附近同类店，估一个日订单水位，别只看热闹。"
+    return "关键账先跑出来了。你可以继续补押金、装修、设备、现金预算，或者直接看报告里的下一步。"
+
+
+def slot_label(slot_id: str) -> str:
+    labels = {
+        "monthly_rent": "房租",
+        "monthly_labor": "人工",
+        "monthly_utilities": "水电杂费",
+        "gross_margin_rate": "毛利率",
+        "average_ticket": "客单价",
+        "cash_available": "现金预算",
+        "area_sqm": "面积",
+        "deposit": "押金",
+        "transfer_fee": "转让费",
+        "franchise_or_training_fee": "加盟/学习费",
+        "decoration_and_ads": "装修/广告",
+        "equipment": "设备",
+        "first_batch_material": "首批物料",
+        "storefront_flow_30min": "门前人流",
+        "comparable_orders": "同类店订单",
+        "city": "城市",
+        "address_text": "铺位位置",
+        "category_name": "品类",
+    }
+    return labels.get(slot_id, slot_id)
 
 
 def coerce_finance_value(field_name: str, value: Any) -> float | int | None:
@@ -252,6 +459,8 @@ def build_session_view(record: SessionRecord, view: str) -> dict[str, Any]:
         "evaluation": record.evaluation,
         "visible_slots": visible_slots,
         "events": attach_session_id(public_events if view in {"user", "report"} else record.events, record.session_id),
+        "messages": record.messages,
+        "current_question": next_question(record),
     }
 
     if view in {"debug", "admin"}:

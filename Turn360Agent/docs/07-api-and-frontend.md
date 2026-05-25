@@ -190,6 +190,43 @@ PATCH /api/sessions/{session_id}/slots
 
 User UI 仍不得展示 `private_debug` 槽位；Debug/Admin 视图可查看隐藏槽位和原始输入。
 
+### 3.2.3 Session 引导式对话
+
+```http
+POST /api/sessions/{session_id}/chat
+```
+
+MVP 阶段先使用确定性抽槽位逻辑，不接 LLM。用户可以用自然语言回答 Agent 的追问，后端从文本中提取城市、品类、房租、人工、毛利率、客单价、门前人流、同类店订单等关键字段，并更新同一个 `ConsultationSession`。
+
+请求：
+
+```json
+{
+  "view": "user",
+  "message": "我想在南京开咖啡店，房租12000，人工7000，毛利率60，客单价25，门前30分钟20人，同类店订单80单"
+}
+```
+
+响应为完整 Session 视图：
+
+```json
+{
+  "session_id": "uuid",
+  "evaluation": {},
+  "visible_slots": [],
+  "messages": [
+    {
+      "role": "assistant",
+      "content": "你要开店，先别急着看感觉...",
+      "slot_updates": []
+    }
+  ],
+  "current_question": "关键账先跑出来了。你可以继续补押金、装修、设备、现金预算..."
+}
+```
+
+抽槽位只是 MVP 的兜底交互层。后续接 LLM 时仍必须保留结构化槽位更新、白名单字段和 Debug 可追踪事件，避免模型直接改写不可解释结论。
+
 响应：
 
 ```json

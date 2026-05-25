@@ -107,6 +107,26 @@ class SessionStoreTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             store.patch_pre_opening_slots(record.session_id, {"made_up_slot": 1})
 
+    def test_chat_message_extracts_slots_and_keeps_flow(self) -> None:
+        store = SessionStore()
+        record = store.create_pre_opening()
+
+        updated = store.handle_chat_message(
+            record.session_id,
+            "我想在南京开咖啡店，房租12000，人工7000，毛利率60，客单价25，门前30分钟20人，同类店订单80单",
+        )
+        view = build_session_view(updated, "user")
+
+        self.assertEqual(updated.evaluation["location"]["city"], "南京")
+        self.assertEqual(updated.evaluation["category"]["name"], "咖啡")
+        self.assertEqual(updated.evaluation["finance"]["monthly_fixed_cost"], 21000)
+        self.assertEqual(updated.evaluation["finance"]["daily_breakeven"], 1166.67)
+        self.assertEqual(updated.evaluation["location"]["target_customer_flow_30min"], 20)
+        self.assertEqual(updated.messages[-2]["role"], "user")
+        self.assertEqual(updated.messages[-1]["role"], "assistant")
+        self.assertIn("日盈亏平衡点", updated.messages[-1]["content"])
+        self.assertIn("current_question", view)
+
 
 if __name__ == "__main__":
     unittest.main()

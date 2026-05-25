@@ -70,3 +70,8 @@ class CreateSessionRequest(BaseModel):
 class SlotPatchRequest(BaseModel):
     updates: dict[str, str | int | float | None]
     view: str = "user"
+
+
+class ChatMessageRequest(BaseModel):
+    message: str = Field(min_length=1)
+    view: str = "user"
