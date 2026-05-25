@@ -1,7 +1,7 @@
-import type { EvaluationResult } from "./types";
+import type { ConsultationSession, CreatedSession, EvaluationResult, SessionView } from "./types";
 
-const sampleRequest = {
-  session_id: "demo-pre-opening",
+const demoPreOpeningRequest = {
+  session_id: "demo",
   finance: {
     area_sqm: 25,
     monthly_rent: 6666,
@@ -38,25 +38,43 @@ const sampleRequest = {
   }
 };
 
-export async function fetchEvaluation(): Promise<EvaluationResult> {
+export async function createDemoSession(): Promise<ConsultationSession> {
   try {
-    const response = await fetch("/api/sessions/pre-opening/evaluate", {
+    const response = await fetch("/api/sessions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(sampleRequest)
+      body: JSON.stringify({ scenario: "pre_opening", pre_opening: demoPreOpeningRequest })
     });
     if (!response.ok) {
-      throw new Error(`backend responded ${response.status}`);
+      throw new Error(`create session responded ${response.status}`);
     }
-    return (await response.json()) as EvaluationResult;
+    const created = (await response.json()) as CreatedSession;
+    return await fetchSessionView(created.session_id, "user");
   } catch {
-    return fallbackEvaluation;
+    return fallbackSession("user");
   }
 }
 
+export async function fetchSessionView(sessionId: string, view: SessionView): Promise<ConsultationSession> {
+  try {
+    const response = await fetch(`/api/sessions/${encodeURIComponent(sessionId)}?view=${view}`);
+    if (!response.ok) {
+      throw new Error(`session view responded ${response.status}`);
+    }
+    return (await response.json()) as ConsultationSession;
+  } catch {
+    return { ...fallbackSession(view), session_id: sessionId };
+  }
+}
+
+export function streamSessionUrl(sessionId: string, view: SessionView) {
+  const streamView = view === "debug" ? "debug" : "user";
+  return `/api/sessions/${encodeURIComponent(sessionId)}/chat/stream?view=${streamView}`;
+}
+
 export const fallbackEvaluation: EvaluationResult = {
-  session_id: "demo-pre-opening",
-  verdict: "can_open",
+  session_id: "fallback-pre-opening",
+  verdict: "validate_first",
   finance: {
     mode: "pre_opening",
     build_cost: 81662,
@@ -115,3 +133,66 @@ export const fallbackEvaluation: EvaluationResult = {
     { engine: "report", status: "completed" }
   ]
 };
+
+function fallbackSession(view: SessionView): ConsultationSession {
+  const now = new Date().toISOString();
+  const sessionId = fallbackEvaluation.session_id;
+  return {
+    session_id: sessionId,
+    scenario: "pre_opening",
+    status: "active",
+    created_at: now,
+    updated_at: now,
+    view,
+    evaluation: fallbackEvaluation,
+    visible_slots: [
+      slot("monthly_rent", "房租/月", 6666, "元", "finance", "editable", "user_input", "low", true, now),
+      slot("daily_breakeven", "日盈亏平衡点", 1010.06, "元/日", "finance", "public", "system_calculated", "high", false, now),
+      slot("target_order_count", "目标订单数", 64.64, "单/日", "finance", "public", "system_calculated", "high", false, now),
+      slot("location_score", "地址评分", 85, "分", "location", "public", "system_calculated", "medium", false, now),
+      slot("category_name", "品类", "米饭快餐", null, "category", "editable", "user_input", "low", true, now)
+    ],
+    hidden_slots:
+      view === "debug" || view === "admin"
+        ? [
+            slot("founder_expression_score", "表达清晰度", null, "分", "founder", "private_debug", "conversation_analysis", "pending", false, now),
+            slot("founder_location_bias_score", "选址判断偏差", null, "分", "founder", "private_debug", "map_cross_check", "pending", false, now)
+          ]
+        : undefined,
+    events: [
+      {
+        sessionId,
+        type: "message.done",
+        step: "report",
+        message: fallbackEvaluation.report.executive_summary,
+        visibility: "public",
+        payload: {}
+      }
+    ],
+    raw_input: view === "debug" || view === "admin" ? demoPreOpeningRequest : undefined,
+    debug_summary: view === "debug" || view === "admin" ? { event_count: 1, hidden_slot_count: 2 } : undefined,
+    admin_summary:
+      view === "admin"
+        ? {
+            requires_human_review: true,
+            risk_flags: fallbackEvaluation.finance.risk_flags,
+            report_ready: true
+          }
+        : undefined
+  };
+}
+
+function slot(
+  id: string,
+  label: string,
+  value: string | number | null,
+  unit: string | null,
+  group: string,
+  visibility: "public" | "editable" | "report_only" | "private_debug",
+  source: string,
+  confidence: string,
+  editable: boolean,
+  updated_at: string
+) {
+  return { id, label, value, unit, group, visibility, source, confidence, editable, updated_at };
+}

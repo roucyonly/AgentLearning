@@ -1,4 +1,5 @@
 export type Verdict = "can_open" | "validate_first" | "do_not_open" | "insufficient_data";
+export type SessionView = "user" | "report" | "debug" | "admin";
 
 export type FinanceResult = {
   mode: "pre_opening";
@@ -89,7 +90,7 @@ export type ConsultationSession = {
   status: "active" | string;
   created_at: string;
   updated_at: string;
-  view: "user" | "report" | "debug" | "admin";
+  view: SessionView;
   evaluation: EvaluationResult;
   visible_slots: SessionSlot[];
   hidden_slots?: SessionSlot[];

@@ -17,6 +17,7 @@ class SessionStoreTest(unittest.TestCase):
         self.assertTrue(view["visible_slots"])
         self.assertNotIn("hidden_slots", view)
         self.assertTrue(all(slot["visibility"] != "private_debug" for slot in view["visible_slots"]))
+        self.assertTrue(all(event["sessionId"] == record.session_id for event in view["events"]))
         self.assertTrue(all(event["visibility"] != "private_debug" for event in view["events"]))
 
     def test_debug_view_contains_hidden_assessment_slots(self) -> None:

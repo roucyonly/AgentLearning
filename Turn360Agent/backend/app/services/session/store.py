@@ -129,7 +129,7 @@ def build_session_view(record: SessionRecord, view: str) -> dict[str, Any]:
         "view": view,
         "evaluation": record.evaluation,
         "visible_slots": visible_slots,
-        "events": public_events if view in {"user", "report"} else record.events,
+        "events": attach_session_id(public_events if view in {"user", "report"} else record.events, record.session_id),
     }
 
     if view in {"debug", "admin"}:
@@ -156,6 +156,10 @@ def stream_events_for_view(record: SessionRecord, view: str) -> list[dict[str, A
     if view == "debug":
         return record.events
     return [event for event in record.events if event["visibility"] != "private_debug"]
+
+
+def attach_session_id(events: list[dict[str, Any]], session_id: str) -> list[dict[str, Any]]:
+    return [{"sessionId": session_id, **event} for event in events]
 
 
 def build_slots(record: SessionRecord) -> list[dict[str, Any]]:
