@@ -9,18 +9,40 @@ const verdictLabel: Record<Verdict, string> = {
   insufficient_data: "证据不足"
 };
 
-const viewLabels: Record<SessionView, string> = {
-  user: "User",
-  report: "Report",
-  debug: "Debug",
-  admin: "Admin"
+const verdictTone: Record<Verdict, string> = {
+  can_open: "账能跑通，继续验证地址。",
+  validate_first: "先别交钱，把缺的证据补上。",
+  do_not_open: "现在不适合开，先止住损失。",
+  insufficient_data: "信息不够，先把关键数补齐。"
 };
+
+const viewLabels: Record<SessionView, string> = {
+  user: "咨询",
+  report: "报告",
+  debug: "调试",
+  admin: "管理"
+};
+
+const financeSlotIds = ["monthly_rent", "monthly_labor", "monthly_utilities", "gross_margin_rate", "average_ticket"];
+const locationSlotIds = ["storefront_flow_30min", "comparable_orders", "location_score"];
+const categorySlotIds = ["category_name", "category_demand_type"];
+const numericSlotIds = new Set([
+  "monthly_rent",
+  "monthly_labor",
+  "monthly_utilities",
+  "gross_margin_rate",
+  "average_ticket",
+  "storefront_flow_30min",
+  "comparable_orders"
+]);
 
 export default function App() {
   const [view, setView] = useState<SessionView>("user");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [session, setSession] = useState<ConsultationSession | null>(null);
   const [events, setEvents] = useState<StreamEvent[]>([]);
+  const [patchingSlot, setPatchingSlot] = useState<string | null>(null);
+  const [patchMessage, setPatchMessage] = useState("参数已同步");
 
   useEffect(() => {
     let active = true;
@@ -60,16 +82,18 @@ export default function App() {
 
   async function handleSlotPatch(slotId: string, value: SlotPatchValue) {
     if (!sessionId) return;
+    setPatchingSlot(slotId);
+    setPatchMessage("正在重新计算");
     const nextSession = await patchSessionSlots(sessionId, { [slotId]: value }, view);
     setSession(nextSession);
     setEvents(nextSession.events.slice(-8));
+    setPatchMessage("参数已同步");
+    setPatchingSlot(null);
   }
 
   if (!session) {
     return <main className="loading">正在建立咨询 Session...</main>;
   }
-
-  const result = session.evaluation;
 
   return (
     <main className="app-shell">
@@ -80,13 +104,18 @@ export default function App() {
           </button>
         ))}
       </nav>
-      {view === "user" && <UserSession session={session} events={events} onPatchSlot={handleSlotPatch} />}
+      {view === "user" && (
+        <UserSession
+          session={session}
+          events={events}
+          onPatchSlot={handleSlotPatch}
+          patchingSlot={patchingSlot}
+          patchMessage={patchMessage}
+        />
+      )}
       {view === "report" && <ReportView session={session} />}
       {view === "debug" && <DebugView session={session} events={events} />}
       {view === "admin" && <AdminView session={session} />}
-      <small className="session-footnote">
-        Session {shortId(session.session_id)} · {verdictLabel[result.verdict]}
-      </small>
     </main>
   );
 }
@@ -94,39 +123,46 @@ export default function App() {
 function UserSession({
   session,
   events,
-  onPatchSlot
+  onPatchSlot,
+  patchingSlot,
+  patchMessage
 }: {
   session: ConsultationSession;
   events: StreamEvent[];
-  onPatchSlot: (slotId: string, value: SlotPatchValue) => void;
+  onPatchSlot: (slotId: string, value: SlotPatchValue) => Promise<void>;
+  patchingSlot: string | null;
+  patchMessage: string;
 }) {
   const result = session.evaluation;
-  const importantSlots = pickSlots(session.visible_slots, [
-    "monthly_rent",
-    "monthly_labor",
-    "gross_margin_rate",
-    "average_ticket",
-    "daily_breakeven",
-    "target_order_count",
-    "storefront_flow_30min",
-    "comparable_orders",
-    "location_score",
-    "category_name"
-  ]);
   const latestEvent = events[events.length - 1] ?? session.events[session.events.length - 1];
+  const financeSlots = pickSlots(session.visible_slots, financeSlotIds);
+  const locationSlots = pickSlots(session.visible_slots, locationSlotIds);
+  const categorySlots = pickSlots(session.visible_slots, categorySlotIds);
 
   return (
-    <section className="phone-page" data-design-ref="mobile.session.live.shell">
-      <header className="location-header" data-design-ref="mobile.session.live.locationHeader">
+    <section className="mobile-session" data-design-ref="mobile.session.live.shell">
+      <header className="consult-header" data-design-ref="mobile.session.live.locationHeader">
         <div>
-          <span className="eyebrow">当前铺位</span>
+          <span className="eyebrow">开店前评估</span>
           <h1>{result.location.address_text}</h1>
-          <p>
-            {result.location.city} · {result.location.floor ?? "楼层待补"} · 置信度 {result.location.evidence_level}
-          </p>
+          <p>{result.location.city} · {result.location.floor ?? "楼层待补"} · {result.location.evidence_level}</p>
         </div>
-        <button>重选点</button>
+        <VerdictPill verdict={result.verdict} />
       </header>
+
+      <section className="decision-panel">
+        <div>
+          <span>结论</span>
+          <strong>{verdictLabel[result.verdict]}</strong>
+          <p>{verdictTone[result.verdict]}</p>
+        </div>
+        <div className="decision-metrics">
+          <Metric label="日平衡点" value={money(result.finance.daily_breakeven)} />
+          <Metric label="回本日销" value={money(result.finance.target_daily_revenue)} />
+          <Metric label="目标单量" value={`${result.finance.target_order_count} 单`} />
+          <Metric label="地址分" value={`${result.location.score}`} />
+        </div>
+      </section>
 
       <div className="agent-path" data-design-ref="mobile.session.live.publicAgentPath">
         {result.agent_path.map((step) => (
@@ -134,28 +170,69 @@ function UserSession({
         ))}
       </div>
 
-      <section className="chat-stream" data-design-ref="mobile.session.live.chatStream">
-        <div className="bubble user">我在这个位置想开店，先帮我判断能不能做。</div>
-        <div className="bubble agent">
-          先算账。别凭感觉看铺子，先看每天至少要卖多少，再让地址来证明它能不能撑住。
-        </div>
-        <FinancePanel result={result} compact />
-        <div className="bubble agent strong">{result.report.executive_summary}</div>
+      <section className="workbench" data-design-ref="mobile.session.live.slotSheet">
+        <header>
+          <h2>实时参数</h2>
+          <small>{patchingSlot ? patchMessage : latestEvent?.message ?? patchMessage}</small>
+        </header>
+        <SlotGroup title="算账" slots={financeSlots} onPatchSlot={onPatchSlot} patchingSlot={patchingSlot} />
+        <SlotGroup title="地址" slots={locationSlots} onPatchSlot={onPatchSlot} patchingSlot={patchingSlot} />
+        <SlotGroup title="品类" slots={categorySlots} onPatchSlot={onPatchSlot} patchingSlot={patchingSlot} />
       </section>
 
-      <section className="slot-sheet" data-design-ref="mobile.session.live.slotSheet">
-        {importantSlots.map((slot) => (
-          <LiveSlot key={slot.id} slot={slot} onPatchSlot={onPatchSlot} />
+      <FinancePanel result={result} compact />
+
+      <section className="next-actions">
+        <h2>下一步</h2>
+        {result.report.next_actions.slice(0, 3).map((item, index) => (
+          <div key={item}>
+            <span>{index + 1}</span>
+            <p>{item}</p>
+          </div>
         ))}
       </section>
 
       <footer className="input-dock" data-design-ref="mobile.session.live.inputDock">
-        <button title="定位">⌖</button>
+        <button title="定位">定位</button>
         <input placeholder="补充房租、人工、毛利率或现场人流..." />
-        <button title="发送">↗</button>
-        <button title="语音 P2" disabled>声</button>
+        <button title="发送">发送</button>
       </footer>
-      {latestEvent && <small className="stream-note">最新：{latestEvent.message}</small>}
+    </section>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function SlotGroup({
+  title,
+  slots,
+  onPatchSlot,
+  patchingSlot
+}: {
+  title: string;
+  slots: SessionSlot[];
+  onPatchSlot: (slotId: string, value: SlotPatchValue) => Promise<void>;
+  patchingSlot: string | null;
+}) {
+  return (
+    <section className="slot-group">
+      <h3>{title}</h3>
+      {slots.map((slot) => (
+        <LiveSlot
+          key={slot.id}
+          slot={slot}
+          onPatchSlot={onPatchSlot}
+          isPatching={patchingSlot === slot.id}
+          disabled={Boolean(patchingSlot)}
+        />
+      ))}
     </section>
   );
 }
@@ -163,15 +240,15 @@ function UserSession({
 function FinancePanel({ result, compact = false }: { result: EvaluationResult; compact?: boolean }) {
   const rows = [
     ["建店成本", money(result.finance.build_cost)],
+    ["每月固定成本", money(result.finance.monthly_fixed_cost)],
     ["日盈亏平衡点", money(result.finance.daily_breakeven)],
     ["目标回本日销", money(result.finance.target_daily_revenue)],
-    ["目标订单数", `${result.finance.target_order_count} 单/日`],
     ["3个月现金预留", money(result.finance.minimum_cash_reserve_3m)]
   ];
   return (
     <section className={compact ? "finance-card compact" : "finance-card"} data-design-ref="mobile.session.live.financeCard">
       <header>
-        <h2>实时算账</h2>
+        <h2>算账表</h2>
         <VerdictPill verdict={result.verdict} />
       </header>
       {rows.map(([label, value]) => (
@@ -271,10 +348,14 @@ function AdminView({ session }: { session: ConsultationSession }) {
 
 function LiveSlot({
   slot,
-  onPatchSlot
+  onPatchSlot,
+  isPatching,
+  disabled
 }: {
   slot: SessionSlot;
-  onPatchSlot: (slotId: string, value: SlotPatchValue) => void;
+  onPatchSlot: (slotId: string, value: SlotPatchValue) => Promise<void>;
+  isPatching: boolean;
+  disabled: boolean;
 }) {
   const [draft, setDraft] = useState(slot.value === null || slot.value === undefined ? "" : String(slot.value));
 
@@ -282,38 +363,45 @@ function LiveSlot({
     setDraft(slot.value === null || slot.value === undefined ? "" : String(slot.value));
   }, [slot.id, slot.value]);
 
-  function commit() {
-    if (!slot.editable) return;
-    const current = slot.value === null || slot.value === undefined ? "" : String(slot.value);
-    if (draft === current) return;
+  const current = slot.value === null || slot.value === undefined ? "" : String(slot.value);
+  const changed = draft !== current;
+
+  async function commit() {
+    if (!slot.editable || !changed) return;
     const value = normalizeDraftValue(draft, slot);
     if (value === undefined) {
       setDraft(current);
       return;
     }
-    onPatchSlot(slot.id, value);
+    await onPatchSlot(slot.id, value);
   }
 
   return (
-    <div className={slot.editable ? "slot editable" : "slot"}>
-      <span>{slot.label}</span>
+    <div className={slot.editable ? "slot-row editable" : "slot-row"}>
+      <div>
+        <span>{slot.label}</span>
+        <small>{slot.unit ?? slot.source}</small>
+      </div>
       {slot.editable ? (
-        <input
-          className="slot-input"
-          value={draft}
-          inputMode={typeof slot.value === "number" ? "decimal" : "text"}
-          onChange={(event) => setDraft(event.target.value)}
-          onBlur={commit}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              event.currentTarget.blur();
-            }
-          }}
-        />
+        <div className="slot-control">
+          <input
+            value={draft}
+            inputMode={numericSlotIds.has(slot.id) ? "decimal" : "text"}
+            disabled={disabled}
+            onChange={(event) => setDraft(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                void commit();
+              }
+            }}
+          />
+          <button disabled={!changed || disabled} onClick={() => void commit()}>
+            {isPatching ? "更新中" : "更新"}
+          </button>
+        </div>
       ) : (
         <strong>{formatSlotValue(slot)}</strong>
       )}
-      {slot.editable && <small>{slot.unit ?? slot.source}</small>}
     </div>
   );
 }
@@ -361,7 +449,7 @@ function normalizeDraftValue(value: string, slot: SessionSlot): SlotPatchValue |
   if (!trimmed) {
     return null;
   }
-  if (typeof slot.value === "number") {
+  if (numericSlotIds.has(slot.id)) {
     const numberValue = Number(trimmed);
     return Number.isFinite(numberValue) ? numberValue : undefined;
   }
