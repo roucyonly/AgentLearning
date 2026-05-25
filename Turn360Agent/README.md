@@ -53,6 +53,14 @@ npm run dev
 
 Open `http://127.0.0.1:5173`.
 
+Run UI for phones on the same WiFi:
+
+```powershell
+npm run dev:lan
+```
+
+Then open `http://<your-computer-lan-ip>:5173` on the phone. The frontend proxies `/api` to the local FastAPI server, so the backend can keep listening on `127.0.0.1:8000` during MVP development.
+
 ## Current MVP
 
 - Pre-opening finance calculation.
@@ -61,4 +69,3 @@ Open `http://127.0.0.1:5173`.
 - Mock location scoring.
 - Basic category intelligence.
 - User UI, Report UI, Debug UI, and Admin UI shells.
-
