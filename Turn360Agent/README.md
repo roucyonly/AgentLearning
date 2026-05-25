@@ -26,15 +26,15 @@ python -m pip install -r requirements.txt
 Environment template:
 
 ```powershell
-Copy-Item ..\.env.example ..\.env
+Copy-Item .env.example .env
 ```
 
-Fill `.env` with local secrets. The app reads normal process environment variables; load the file through your shell/tooling or run Uvicorn with `--env-file ..\.env`.
+Fill `backend/.env` with local secrets. The app reads normal process environment variables; load the file through your shell/tooling or run Uvicorn with `--env-file .env`.
 
 Run API:
 
 ```powershell
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --env-file .env
 ```
 
 Optional LLM integration:
