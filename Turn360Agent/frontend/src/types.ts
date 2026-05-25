@@ -22,6 +22,9 @@ export type FinanceResult = {
 export type LocationResult = {
   city: string;
   address_text: string;
+  longitude: number | null;
+  latitude: number | null;
+  floor: string | null;
   target_customer_flow_30min: number | null;
   comparable_store_orders_per_day: number | null;
   evidence_level: string;
@@ -56,10 +59,54 @@ export type EvaluationResult = {
   agent_path: Array<{ engine: string; status: string }>;
 };
 
+export type SlotVisibility = "public" | "editable" | "report_only" | "private_debug";
+
+export type SessionSlot = {
+  id: string;
+  label: string;
+  value: string | number | null;
+  unit: string | null;
+  group: string;
+  visibility: SlotVisibility;
+  source: string;
+  confidence: string;
+  editable: boolean;
+  updated_at: string;
+};
+
 export type StreamEvent = {
   sessionId: string;
   type: string;
   step: string;
   message: string;
+  visibility: SlotVisibility | "public";
+  payload: Record<string, unknown>;
 };
 
+export type ConsultationSession = {
+  session_id: string;
+  scenario: "pre_opening";
+  status: "active" | string;
+  created_at: string;
+  updated_at: string;
+  view: "user" | "report" | "debug" | "admin";
+  evaluation: EvaluationResult;
+  visible_slots: SessionSlot[];
+  hidden_slots?: SessionSlot[];
+  events: StreamEvent[];
+  raw_input?: Record<string, unknown>;
+  debug_summary?: Record<string, unknown>;
+  admin_summary?: {
+    requires_human_review: boolean;
+    risk_flags: string[];
+    report_ready: boolean;
+  };
+};
+
+export type CreatedSession = {
+  session_id: string;
+  scenario: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+};

@@ -33,6 +33,9 @@ class LocationSignal(BaseModel):
     city: str
     district: str | None = None
     address_text: str
+    longitude: float | None = None
+    latitude: float | None = None
+    floor: str | None = None
     target_customer_flow_30min: int | None = None
     comparable_store_orders_per_day: int | None = None
     evidence_level: str = "mock"
@@ -58,3 +61,7 @@ class PreOpeningEvaluationRequest(BaseModel):
             category=self.category.model_dump(),
         )
 
+
+class CreateSessionRequest(BaseModel):
+    scenario: str = "pre_opening"
+    pre_opening: PreOpeningEvaluationRequest | None = None

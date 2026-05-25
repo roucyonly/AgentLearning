@@ -5,16 +5,19 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
 from app.models.api import (
+    CreateSessionRequest,
     PreOpeningEvaluationRequest,
     PreOpeningFinanceRequest,
 )
 from app.services.cases.repository import CaseRepository
 from app.services.decision.pre_opening import evaluate_pre_opening
 from app.services.finance.calculator import calculate_pre_opening_finance
+from app.services.session.store import SessionStore, build_session_view, stream_events_for_view
 
 
 router = APIRouter()
 cases = CaseRepository()
+sessions = SessionStore()
 
 
 @router.get("/health")
@@ -47,6 +50,56 @@ def pre_opening_evaluate(payload: PreOpeningEvaluationRequest) -> dict:
     return result
 
 
+@router.post("/sessions")
+def create_session(payload: CreateSessionRequest | None = None) -> dict:
+    if payload is not None and payload.scenario != "pre_opening":
+        raise HTTPException(status_code=400, detail="only pre_opening sessions are supported in MVP")
+    domain_payload = None if payload is None or payload.pre_opening is None else payload.pre_opening.to_domain()
+    record = sessions.create_pre_opening(domain_payload)
+    return {
+        "session_id": record.session_id,
+        "scenario": record.scenario,
+        "status": record.status,
+        "created_at": record.created_at,
+        "updated_at": record.updated_at,
+    }
+
+
+@router.get("/sessions/{session_id}")
+def get_session(session_id: str, view: str = "user") -> dict:
+    record = sessions.get(session_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail="session not found")
+    try:
+        return build_session_view(record, view)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/sessions/{session_id}/pre-opening/evaluate")
+def update_pre_opening_session(session_id: str, payload: PreOpeningEvaluationRequest) -> dict:
+    try:
+        record = sessions.update_pre_opening(session_id, payload.to_domain())
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="session not found") from exc
+    return build_session_view(record, "debug")
+
+
+@router.get("/sessions/{session_id}/chat/stream")
+def session_chat_stream(session_id: str, view: str = "user") -> StreamingResponse:
+    record = sessions.get(session_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail="session not found")
+    if view not in {"user", "debug"}:
+        raise HTTPException(status_code=400, detail="stream view must be user or debug")
+
+    def events() -> Iterator[str]:
+        for step in stream_events_for_view(record, view):
+            yield f"data: {json.dumps({'sessionId': session_id, **step}, ensure_ascii=False)}\n\n"
+
+    return StreamingResponse(events(), media_type="text/event-stream")
+
+
 @router.get("/chat/stream")
 def chat_stream(session_id: str = "demo") -> StreamingResponse:
     def events() -> Iterator[str]:
@@ -61,4 +114,3 @@ def chat_stream(session_id: str = "demo") -> StreamingResponse:
             yield f"data: {json.dumps({'sessionId': session_id, **step}, ensure_ascii=False)}\n\n"
 
     return StreamingResponse(events(), media_type="text/event-stream")
-

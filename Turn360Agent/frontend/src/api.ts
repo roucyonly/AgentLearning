@@ -26,6 +26,9 @@ const sampleRequest = {
     city: "上海",
     district: "徐汇区",
     address_text: "目标铺位门口",
+    longitude: 121.43,
+    latitude: 31.18,
+    floor: "一楼临街",
     target_customer_flow_30min: 90,
     comparable_store_orders_per_day: 95,
     evidence_level: "mock"
@@ -75,12 +78,15 @@ export const fallbackEvaluation: EvaluationResult = {
   location: {
     city: "上海",
     address_text: "目标铺位门口",
+    longitude: 121.43,
+    latitude: 31.18,
+    floor: "一楼临街",
     target_customer_flow_30min: 90,
     comparable_store_orders_per_day: 95,
     evidence_level: "mock",
     score: 85,
     flags: [],
-    notes: ["门前客群数据对目标订单数有一定支撑。", "同类店订单水位可支撑目标订单数。"]
+    notes: ["门前客群数据对目标订单数有一定支撑。", "同类店订单水平可支撑目标订单数。"]
   },
   category: {
     name: "米饭快餐",
@@ -109,4 +115,3 @@ export const fallbackEvaluation: EvaluationResult = {
     { engine: "report", status: "completed" }
   ]
 };
-

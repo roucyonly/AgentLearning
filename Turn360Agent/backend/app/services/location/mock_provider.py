@@ -5,6 +5,9 @@ from dataclasses import dataclass, asdict
 class MockLocationEvidence:
     city: str
     address_text: str
+    longitude: float | None
+    latitude: float | None
+    floor: str | None
     target_customer_flow_30min: int | None
     comparable_store_orders_per_day: int | None
     evidence_level: str
@@ -51,6 +54,9 @@ def evaluate_mock_location(location: dict, target_order_count: float) -> MockLoc
     return MockLocationEvidence(
         city=location.get("city", "unknown"),
         address_text=location.get("address_text", "unknown"),
+        longitude=location.get("longitude"),
+        latitude=location.get("latitude"),
+        floor=location.get("floor"),
         target_customer_flow_30min=flow,
         comparable_store_orders_per_day=comparable_orders,
         evidence_level=location.get("evidence_level", "mock"),
@@ -58,4 +64,3 @@ def evaluate_mock_location(location: dict, target_order_count: float) -> MockLoc
         flags=flags,
         notes=notes,
     )
-

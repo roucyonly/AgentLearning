@@ -1,0 +1,80 @@
+import unittest
+
+from app.services.decision.pre_opening import PreOpeningEvaluationInput
+from app.services.finance.calculator import PreOpeningFinanceInput
+from app.services.session.store import SessionStore, build_session_view, stream_events_for_view
+
+
+class SessionStoreTest(unittest.TestCase):
+    def test_user_view_hides_private_debug_slots_and_events(self) -> None:
+        store = SessionStore()
+        record = store.create_pre_opening()
+
+        view = build_session_view(record, "user")
+
+        self.assertEqual(view["scenario"], "pre_opening")
+        self.assertEqual(view["evaluation"]["session_id"], record.session_id)
+        self.assertTrue(view["visible_slots"])
+        self.assertNotIn("hidden_slots", view)
+        self.assertTrue(all(slot["visibility"] != "private_debug" for slot in view["visible_slots"]))
+        self.assertTrue(all(event["visibility"] != "private_debug" for event in view["events"]))
+
+    def test_debug_view_contains_hidden_assessment_slots(self) -> None:
+        store = SessionStore()
+        record = store.create_pre_opening()
+
+        view = build_session_view(record, "debug")
+
+        hidden_ids = {slot["id"] for slot in view["hidden_slots"]}
+        self.assertIn("founder_expression_score", hidden_ids)
+        self.assertIn("founder_location_bias_score", hidden_ids)
+        self.assertGreater(view["debug_summary"]["private_event_count"], 0)
+        self.assertTrue(any(event["type"] == "hidden.patch" for event in view["events"]))
+
+    def test_update_session_recalculates_same_session_id(self) -> None:
+        store = SessionStore()
+        record = store.create_pre_opening()
+        updated = store.update_pre_opening(
+            record.session_id,
+            PreOpeningEvaluationInput(
+                session_id="ignored-by-store",
+                finance=PreOpeningFinanceInput(
+                    monthly_rent=8000,
+                    monthly_labor=6000,
+                    monthly_utilities=1500,
+                    gross_margin_rate=60,
+                    estimated_average_ticket=25,
+                    rent_payment_months=3,
+                    deposit=8000,
+                    decoration_and_ads=15000,
+                    first_batch_material=4000,
+                    cash_available=120000,
+                ),
+                location={
+                    "city": "南京",
+                    "address_text": "社区底商",
+                    "target_customer_flow_30min": 120,
+                    "comparable_store_orders_per_day": 120,
+                    "evidence_level": "field_research",
+                },
+                category={"category_name": "米饭快餐"},
+            ),
+        )
+
+        self.assertEqual(updated.session_id, record.session_id)
+        self.assertEqual(updated.evaluation["session_id"], record.session_id)
+        self.assertEqual(updated.evaluation["finance"]["daily_breakeven"], 861.11)
+
+    def test_stream_events_filter_private_debug_for_user(self) -> None:
+        store = SessionStore()
+        record = store.create_pre_opening()
+
+        user_events = stream_events_for_view(record, "user")
+        debug_events = stream_events_for_view(record, "debug")
+
+        self.assertLess(len(user_events), len(debug_events))
+        self.assertFalse(any(event["visibility"] == "private_debug" for event in user_events))
+
+
+if __name__ == "__main__":
+    unittest.main()
