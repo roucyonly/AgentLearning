@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 from app.services.decision.pre_opening import PreOpeningEvaluationInput
-from app.services.llm.openai_responses import OpenAIResponsesClient
+from app.services.llm.provider_factory import load_llm_client
 
 
 ALLOWED_SLOT_IDS = [
@@ -40,6 +40,10 @@ class JsonLLMClient(Protocol):
     def is_configured(self) -> bool:
         ...
 
+    @property
+    def provider_name(self) -> str:
+        ...
+
     def create_json_response(self, *, input_messages: list[dict[str, str]], json_schema: dict[str, Any]) -> dict[str, Any]:
         ...
 
@@ -55,7 +59,7 @@ class LLMGuidedTurn:
 
 class GuidedAgentLLM:
     def __init__(self, client: JsonLLMClient | None = None) -> None:
-        self.client = client or OpenAIResponsesClient()
+        self.client = client or load_llm_client()
 
     @property
     def is_configured(self) -> bool:
@@ -72,10 +76,10 @@ class GuidedAgentLLM:
             ],
             json_schema=TURN_SCHEMA,
         )
-        return parse_guided_turn(response)
+        return parse_guided_turn(response, provider_name=getattr(self.client, "provider_name", "unknown"))
 
 
-def parse_guided_turn(response: dict[str, Any]) -> LLMGuidedTurn:
+def parse_guided_turn(response: dict[str, Any], provider_name: str = "unknown") -> LLMGuidedTurn:
     raw_slots = response.get("slot_updates", [])
     updates: dict[str, Any] = {}
     if isinstance(raw_slots, list):
@@ -93,7 +97,7 @@ def parse_guided_turn(response: dict[str, Any]) -> LLMGuidedTurn:
         next_question=str(response.get("next_question") or "").strip(),
         intent=str(response.get("intent") or "pre_opening"),
         debug={
-            "llm_provider": "openai",
+            "llm_provider": provider_name,
             "llm_slot_count": len(updates),
             "needs_more_data": bool(response.get("needs_more_data")),
         },

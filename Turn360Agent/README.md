@@ -31,12 +31,33 @@ uvicorn app.main:app --reload
 
 Optional LLM integration:
 
+DeepSeek:
+
 ```powershell
+$env:LLM_PROVIDER="deepseek"
+$env:DEEPSEEK_API_KEY="sk-..."
+$env:DEEPSEEK_MODEL="deepseek-v4-flash"
+```
+
+OpenAI:
+
+```powershell
+$env:LLM_PROVIDER="openai"
 $env:OPENAI_API_KEY="sk-..."
 $env:OPENAI_MODEL="chat-latest"
 ```
 
-The LLM layer uses OpenAI's Responses API for slot extraction and guided replies. If `OPENAI_API_KEY` is not set, the app falls back to the deterministic MVP extractor.
+Generic OpenAI-compatible provider for later MiniMax/GLM-style adapters:
+
+```powershell
+$env:LLM_PROVIDER="openai_compatible"
+$env:LLM_PROVIDER_NAME="glm"
+$env:LLM_API_KEY="..."
+$env:LLM_BASE_URL="https://example.com/v1"
+$env:LLM_MODEL="model-name"
+```
+
+The LLM layer is optional and only handles slot extraction and guided replies. If the selected provider is not configured, the app falls back to the deterministic MVP extractor.
 
 Run core tests without FastAPI dependencies:
 

@@ -24,6 +24,10 @@ class OpenAIResponsesClient:
     def is_configured(self) -> bool:
         return bool(self.config.api_key)
 
+    @property
+    def provider_name(self) -> str:
+        return "openai"
+
     def create_json_response(self, *, input_messages: list[dict[str, str]], json_schema: dict[str, Any]) -> dict[str, Any]:
         if not self.is_configured:
             raise RuntimeError("OPENAI_API_KEY is not configured")

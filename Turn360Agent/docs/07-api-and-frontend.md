@@ -229,7 +229,15 @@ MVP 阶段先使用确定性抽槽位逻辑，不接 LLM。用户可以用自然
 
 ### 3.2.4 LLM 接入边界
 
-后端已预留并接入 OpenAI Responses API 的 LLM 层：
+后端已预留多 Provider LLM 层，当前支持：
+
+| Provider | 环境变量 | API 形态 | 默认模型 |
+|---|---|---|---|
+| `deepseek` | `DEEPSEEK_API_KEY` | OpenAI-compatible `/chat/completions` + JSON Output | `deepseek-v4-flash` |
+| `openai` | `OPENAI_API_KEY` | Responses API + JSON Schema Structured Outputs | `chat-latest` |
+| `openai_compatible` | `LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL` | 通用 Chat Completions JSON Output | 无默认值 |
+
+调用链：
 
 ```text
 用户自然语言
@@ -242,18 +250,25 @@ MVP 阶段先使用确定性抽槽位逻辑，不接 LLM。用户可以用自然
 环境变量：
 
 ```powershell
-$env:OPENAI_API_KEY="sk-..."
-$env:OPENAI_MODEL="chat-latest"
-$env:OPENAI_TIMEOUT_SECONDS="20"
+$env:LLM_PROVIDER="deepseek"
+$env:DEEPSEEK_API_KEY="sk-..."
+$env:DEEPSEEK_MODEL="deepseek-v4-flash"
+$env:LLM_TIMEOUT_SECONDS="20"
 ```
 
 约束：
 
-- 没有 `OPENAI_API_KEY` 时自动回退到确定性抽槽位。
+- 选中的 provider 没有配置 API key/base/model 时自动回退到确定性抽槽位。
 - LLM 只能输出结构化槽位、自然语言回复和下一问。
 - LLM 不允许直接改最终结论，不允许绕过财务、地址、品类和决策引擎。
 - Debug/Admin 视图可看到 `llm.completed` 或 `llm.fallback` 事件；User UI 不展示内部错误和隐藏评分。
 - 模型输出经过白名单槽位过滤，只允许更新 `monthly_rent`、`monthly_labor`、`gross_margin_rate`、`category_name` 等受控字段。
+
+DeepSeek 说明：
+
+- DeepSeek 官方 API 兼容 OpenAI 格式，base URL 为 `https://api.deepseek.com`。
+- JSON Output 使用 `response_format: {"type":"json_object"}`。
+- `deepseek-chat` 和 `deepseek-reasoner` 属于兼容旧模型名，官方标注将于 2026-07-24 停用；MVP 默认使用 `deepseek-v4-flash`。
 
 响应：
 

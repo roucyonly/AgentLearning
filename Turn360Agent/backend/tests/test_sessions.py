@@ -2,6 +2,9 @@ import os
 import unittest
 
 os.environ.pop("OPENAI_API_KEY", None)
+os.environ.pop("DEEPSEEK_API_KEY", None)
+os.environ.pop("LLM_API_KEY", None)
+os.environ["LLM_PROVIDER"] = "none"
 
 from app.services.decision.pre_opening import PreOpeningEvaluationInput
 from app.services.finance.calculator import PreOpeningFinanceInput
