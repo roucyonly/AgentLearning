@@ -1,4 +1,4 @@
-import type { ConsultationSession, CreatedSession, EvaluationResult, SessionView } from "./types";
+import type { ConsultationSession, CreatedSession, EvaluationResult, SessionView, SlotPatchValue } from "./types";
 
 const demoPreOpeningRequest = {
   session_id: "demo",
@@ -60,6 +60,26 @@ export async function fetchSessionView(sessionId: string, view: SessionView): Pr
     const response = await fetch(`/api/sessions/${encodeURIComponent(sessionId)}?view=${view}`);
     if (!response.ok) {
       throw new Error(`session view responded ${response.status}`);
+    }
+    return (await response.json()) as ConsultationSession;
+  } catch {
+    return { ...fallbackSession(view), session_id: sessionId };
+  }
+}
+
+export async function patchSessionSlots(
+  sessionId: string,
+  updates: Record<string, SlotPatchValue>,
+  view: SessionView
+): Promise<ConsultationSession> {
+  try {
+    const response = await fetch(`/api/sessions/${encodeURIComponent(sessionId)}/slots`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ updates, view })
+    });
+    if (!response.ok) {
+      throw new Error(`slot patch responded ${response.status}`);
     }
     return (await response.json()) as ConsultationSession;
   } catch {

@@ -8,6 +8,7 @@ from app.models.api import (
     CreateSessionRequest,
     PreOpeningEvaluationRequest,
     PreOpeningFinanceRequest,
+    SlotPatchRequest,
 )
 from app.services.cases.repository import CaseRepository
 from app.services.decision.pre_opening import evaluate_pre_opening
@@ -83,6 +84,17 @@ def update_pre_opening_session(session_id: str, payload: PreOpeningEvaluationReq
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="session not found") from exc
     return build_session_view(record, "debug")
+
+
+@router.patch("/sessions/{session_id}/slots")
+def patch_session_slots(session_id: str, payload: SlotPatchRequest) -> dict:
+    try:
+        record = sessions.patch_pre_opening_slots(session_id, payload.updates)
+        return build_session_view(record, payload.view)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="session not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.get("/sessions/{session_id}/chat/stream")

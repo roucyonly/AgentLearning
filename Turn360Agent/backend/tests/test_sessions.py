@@ -76,6 +76,37 @@ class SessionStoreTest(unittest.TestCase):
         self.assertLess(len(user_events), len(debug_events))
         self.assertFalse(any(event["visibility"] == "private_debug" for event in user_events))
 
+    def test_patch_slots_recalculates_session(self) -> None:
+        store = SessionStore()
+        record = store.create_pre_opening()
+
+        patched = store.patch_pre_opening_slots(
+            record.session_id,
+            {
+                "monthly_rent": 12000,
+                "monthly_labor": 7000,
+                "gross_margin_rate": 60,
+                "storefront_flow_30min": 24,
+                "category_name": "咖啡",
+            },
+        )
+        user_view = build_session_view(patched, "user")
+        slot_values = {slot["id"]: slot["value"] for slot in user_view["visible_slots"]}
+
+        self.assertEqual(patched.session_id, record.session_id)
+        self.assertEqual(patched.evaluation["finance"]["monthly_fixed_cost"], 21000)
+        self.assertEqual(patched.evaluation["finance"]["daily_breakeven"], 1166.67)
+        self.assertEqual(patched.evaluation["location"]["target_customer_flow_30min"], 24)
+        self.assertEqual(patched.evaluation["category"]["name"], "咖啡")
+        self.assertEqual(slot_values["monthly_rent"], 12000)
+
+    def test_patch_slots_rejects_unknown_slot(self) -> None:
+        store = SessionStore()
+        record = store.create_pre_opening()
+
+        with self.assertRaises(ValueError):
+            store.patch_pre_opening_slots(record.session_id, {"made_up_slot": 1})
+
 
 if __name__ == "__main__":
     unittest.main()

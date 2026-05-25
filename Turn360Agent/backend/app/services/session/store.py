@@ -1,10 +1,52 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
 from app.services.decision.pre_opening import PreOpeningEvaluationInput, evaluate_pre_opening
 from app.services.finance.calculator import PreOpeningFinanceInput
+
+
+FINANCE_SLOT_FIELDS = {
+    "area_sqm": "area_sqm",
+    "monthly_rent": "monthly_rent",
+    "rent_payment_months": "rent_payment_months",
+    "deposit": "deposit",
+    "transfer_fee": "transfer_fee",
+    "franchise_or_training_fee": "franchise_or_training_fee",
+    "decoration_and_ads": "decoration_and_ads",
+    "equipment": "equipment",
+    "first_batch_material": "first_batch_material",
+    "monthly_labor": "monthly_labor",
+    "monthly_utilities": "monthly_utilities",
+    "monthly_fixed_operation_cost": "monthly_fixed_operation_cost",
+    "monthly_campaign_cost": "monthly_campaign_cost",
+    "gross_margin_rate": "gross_margin_rate",
+    "average_ticket": "estimated_average_ticket",
+    "target_payback_months": "target_payback_months",
+    "cash_available": "cash_available",
+    "debt_monthly_payment": "debt_monthly_payment",
+}
+
+INTEGER_FINANCE_FIELDS = {"rent_payment_months", "target_payback_months"}
+OPTIONAL_FINANCE_FIELDS = {"area_sqm", "cash_available", "effective_gross_margin_rate"}
+
+LOCATION_SLOT_FIELDS = {
+    "city": "city",
+    "district": "district",
+    "address_text": "address_text",
+    "longitude": "longitude",
+    "latitude": "latitude",
+    "floor": "floor",
+    "storefront_flow_30min": "target_customer_flow_30min",
+    "comparable_orders": "comparable_store_orders_per_day",
+    "evidence_level": "evidence_level",
+}
+
+INTEGER_LOCATION_FIELDS = {"target_customer_flow_30min", "comparable_store_orders_per_day"}
+NUMERIC_LOCATION_FIELDS = {"longitude", "latitude", "target_customer_flow_30min", "comparable_store_orders_per_day"}
+
+CATEGORY_SLOT_FIELDS = {"category_name": "category_name", "category_demand_type": "demand_type"}
 
 
 DEFAULT_PRE_OPENING_INPUT = PreOpeningEvaluationInput(
@@ -101,9 +143,89 @@ class SessionStore:
         record.events = build_stream_events(evaluation)
         return record
 
+    def patch_pre_opening_slots(self, session_id: str, updates: dict[str, Any]) -> SessionRecord:
+        record = self.get(session_id)
+        if record is None:
+            raise KeyError(session_id)
+
+        finance_changes: dict[str, Any] = {}
+        location_changes = dict(record.input_payload.location)
+        category_changes = dict(record.input_payload.category)
+
+        for slot_id, value in updates.items():
+            if slot_id in FINANCE_SLOT_FIELDS:
+                field_name = FINANCE_SLOT_FIELDS[slot_id]
+                finance_changes[field_name] = coerce_finance_value(field_name, value)
+            elif slot_id in LOCATION_SLOT_FIELDS:
+                field_name = LOCATION_SLOT_FIELDS[slot_id]
+                location_changes[field_name] = coerce_location_value(field_name, value)
+            elif slot_id in CATEGORY_SLOT_FIELDS:
+                field_name = CATEGORY_SLOT_FIELDS[slot_id]
+                category_changes[field_name] = coerce_text(value, slot_id)
+            else:
+                raise ValueError(f"unsupported slot id: {slot_id}")
+
+        patched_payload = PreOpeningEvaluationInput(
+            session_id=session_id,
+            finance=replace(record.input_payload.finance, **finance_changes),
+            location=location_changes,
+            category=category_changes,
+        )
+        return self.update_pre_opening(session_id, patched_payload)
+
 
 def utc_now() -> str:
     return datetime.now(UTC).isoformat()
+
+
+def coerce_finance_value(field_name: str, value: Any) -> float | int | None:
+    if value is None and field_name in OPTIONAL_FINANCE_FIELDS:
+        return None
+    number = coerce_non_negative_number(value, field_name)
+    if field_name in INTEGER_FINANCE_FIELDS:
+        integer = int(number)
+        if integer < 1:
+            raise ValueError(f"{field_name} must be at least 1")
+        return integer
+    if field_name in {"gross_margin_rate", "effective_gross_margin_rate"} and number <= 0:
+        raise ValueError(f"{field_name} must be positive")
+    if field_name in {"monthly_rent", "estimated_average_ticket"} and number <= 0:
+        raise ValueError(f"{field_name} must be positive")
+    return number
+
+
+def coerce_location_value(field_name: str, value: Any) -> str | int | float | None:
+    if value is None:
+        return None
+    if field_name in NUMERIC_LOCATION_FIELDS:
+        number = coerce_non_negative_number(value, field_name) if field_name in INTEGER_LOCATION_FIELDS else coerce_number(value, field_name)
+        return int(number) if field_name in INTEGER_LOCATION_FIELDS else number
+    return coerce_text(value, field_name)
+
+
+def coerce_non_negative_number(value: Any, field_name: str) -> float:
+    number = coerce_number(value, field_name)
+    if number < 0:
+        raise ValueError(f"{field_name} must not be negative")
+    return number
+
+
+def coerce_number(value: Any, field_name: str) -> float:
+    if value is None or value == "":
+        raise ValueError(f"{field_name} is required")
+    try:
+        return float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{field_name} must be a number") from exc
+
+
+def coerce_text(value: Any, field_name: str) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        raise ValueError(f"{field_name} must not be empty")
+    return text
 
 
 def build_session_view(record: SessionRecord, view: str) -> dict[str, Any]:

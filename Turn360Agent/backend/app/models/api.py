@@ -65,3 +65,8 @@ class PreOpeningEvaluationRequest(BaseModel):
 class CreateSessionRequest(BaseModel):
     scenario: str = "pre_opening"
     pre_opening: PreOpeningEvaluationRequest | None = None
+
+
+class SlotPatchRequest(BaseModel):
+    updates: dict[str, str | int | float | None]
+    view: str = "user"

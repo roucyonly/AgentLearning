@@ -176,16 +176,42 @@ button, input { font: inherit; }
   border-top: 1px solid #e1e7ef;
 }
 
-.slot-sheet div {
+.slot-sheet .slot {
   border: 1px solid #dce3ee;
   border-radius: 8px;
   padding: 8px;
+}
+
+.slot.editable {
+  background: #fffdf5;
 }
 
 .slot-sheet span {
   display: block;
   color: #667085;
   font-size: 12px;
+}
+
+.slot-sheet small {
+  display: block;
+  color: #98a2b3;
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+.slot-input {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid #cfd7e3;
+  background: transparent;
+  padding: 4px 0;
+  font-weight: 700;
+  color: #172033;
+  outline: none;
+}
+
+.slot-input:focus {
+  border-bottom-color: #1f6feb;
 }
 
 .input-dock {
@@ -323,4 +349,3 @@ button, input { font: inherit; }
     padding: 10px;
   }
 }
-

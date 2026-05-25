@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { createDemoSession, fetchSessionView, streamSessionUrl } from "./api";
-import type { ConsultationSession, EvaluationResult, SessionSlot, SessionView, StreamEvent, Verdict } from "./types";
+import { createDemoSession, fetchSessionView, patchSessionSlots, streamSessionUrl } from "./api";
+import type { ConsultationSession, EvaluationResult, SessionSlot, SessionView, SlotPatchValue, StreamEvent, Verdict } from "./types";
 
 const verdictLabel: Record<Verdict, string> = {
   can_open: "可以开",
@@ -58,6 +58,13 @@ export default function App() {
     return () => eventSource.close();
   }, [sessionId, view]);
 
+  async function handleSlotPatch(slotId: string, value: SlotPatchValue) {
+    if (!sessionId) return;
+    const nextSession = await patchSessionSlots(sessionId, { [slotId]: value }, view);
+    setSession(nextSession);
+    setEvents(nextSession.events.slice(-8));
+  }
+
   if (!session) {
     return <main className="loading">正在建立咨询 Session...</main>;
   }
@@ -73,7 +80,7 @@ export default function App() {
           </button>
         ))}
       </nav>
-      {view === "user" && <UserSession session={session} events={events} />}
+      {view === "user" && <UserSession session={session} events={events} onPatchSlot={handleSlotPatch} />}
       {view === "report" && <ReportView session={session} />}
       {view === "debug" && <DebugView session={session} events={events} />}
       {view === "admin" && <AdminView session={session} />}
@@ -84,12 +91,25 @@ export default function App() {
   );
 }
 
-function UserSession({ session, events }: { session: ConsultationSession; events: StreamEvent[] }) {
+function UserSession({
+  session,
+  events,
+  onPatchSlot
+}: {
+  session: ConsultationSession;
+  events: StreamEvent[];
+  onPatchSlot: (slotId: string, value: SlotPatchValue) => void;
+}) {
   const result = session.evaluation;
   const importantSlots = pickSlots(session.visible_slots, [
     "monthly_rent",
+    "monthly_labor",
+    "gross_margin_rate",
+    "average_ticket",
     "daily_breakeven",
     "target_order_count",
+    "storefront_flow_30min",
+    "comparable_orders",
     "location_score",
     "category_name"
   ]);
@@ -125,10 +145,7 @@ function UserSession({ session, events }: { session: ConsultationSession; events
 
       <section className="slot-sheet" data-design-ref="mobile.session.live.slotSheet">
         {importantSlots.map((slot) => (
-          <div key={slot.id}>
-            <span>{slot.label}</span>
-            <strong>{formatSlotValue(slot)}</strong>
-          </div>
+          <LiveSlot key={slot.id} slot={slot} onPatchSlot={onPatchSlot} />
         ))}
       </section>
 
@@ -252,6 +269,55 @@ function AdminView({ session }: { session: ConsultationSession }) {
   );
 }
 
+function LiveSlot({
+  slot,
+  onPatchSlot
+}: {
+  slot: SessionSlot;
+  onPatchSlot: (slotId: string, value: SlotPatchValue) => void;
+}) {
+  const [draft, setDraft] = useState(slot.value === null || slot.value === undefined ? "" : String(slot.value));
+
+  useEffect(() => {
+    setDraft(slot.value === null || slot.value === undefined ? "" : String(slot.value));
+  }, [slot.id, slot.value]);
+
+  function commit() {
+    if (!slot.editable) return;
+    const current = slot.value === null || slot.value === undefined ? "" : String(slot.value);
+    if (draft === current) return;
+    const value = normalizeDraftValue(draft, slot);
+    if (value === undefined) {
+      setDraft(current);
+      return;
+    }
+    onPatchSlot(slot.id, value);
+  }
+
+  return (
+    <div className={slot.editable ? "slot editable" : "slot"}>
+      <span>{slot.label}</span>
+      {slot.editable ? (
+        <input
+          className="slot-input"
+          value={draft}
+          inputMode={typeof slot.value === "number" ? "decimal" : "text"}
+          onChange={(event) => setDraft(event.target.value)}
+          onBlur={commit}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.currentTarget.blur();
+            }
+          }}
+        />
+      ) : (
+        <strong>{formatSlotValue(slot)}</strong>
+      )}
+      {slot.editable && <small>{slot.unit ?? slot.source}</small>}
+    </div>
+  );
+}
+
 function SlotList({ slots, emptyText }: { slots: SessionSlot[]; emptyText: string }) {
   if (slots.length === 0) {
     return <p>{emptyText}</p>;
@@ -288,6 +354,18 @@ function formatSlotValue(slot: SessionSlot) {
     return "待补";
   }
   return `${slot.value}${slot.unit ? ` ${slot.unit}` : ""}`;
+}
+
+function normalizeDraftValue(value: string, slot: SessionSlot): SlotPatchValue | undefined {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+  if (typeof slot.value === "number") {
+    const numberValue = Number(trimmed);
+    return Number.isFinite(numberValue) ? numberValue : undefined;
+  }
+  return trimmed;
 }
 
 function shortId(sessionId: string) {

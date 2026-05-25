@@ -138,6 +138,58 @@ Accept: text/event-stream
 
 User UI 只展示 `visibility=public/editable/report_only` 的安全事件。Debug UI 可展示完整事件。
 
+### 3.2.2 Session 槽位实时更新
+
+```http
+PATCH /api/sessions/{session_id}/slots
+```
+
+用于移动端在沟通过程中实时修正参数。前端只能提交白名单槽位，后端基于同一个 `ConsultationSession` 重新计算财务、地址评分、品类和报告，不创建新 Session。
+
+请求：
+
+```json
+{
+  "view": "user",
+  "updates": {
+    "monthly_rent": 12000,
+    "monthly_labor": 7000,
+    "gross_margin_rate": 60,
+    "average_ticket": 25,
+    "storefront_flow_30min": 80,
+    "comparable_orders": 100,
+    "category_name": "米饭快餐"
+  }
+}
+```
+
+支持的 MVP 槽位：
+
+| 槽位 | 含义 | 说明 |
+|---|---|---|
+| `monthly_rent` | 房租/月 | 影响固定成本、日盈亏平衡点、回本日销 |
+| `monthly_labor` | 人工/月 | 影响固定成本 |
+| `monthly_utilities` | 水电杂费/月 | 影响固定成本 |
+| `gross_margin_rate` | 毛利率 | 可填 60 或 0.6 |
+| `average_ticket` | 预估客单价 | 影响目标订单数 |
+| `storefront_flow_30min` | 门前 30 分钟目标客群 | 影响地址评分 |
+| `comparable_orders` | 附近同类店日订单 | 影响地址评分 |
+| `category_name` | 品类 | 影响品类档案 |
+
+响应：
+
+```json
+{
+  "session_id": "uuid",
+  "view": "user",
+  "evaluation": {},
+  "visible_slots": [],
+  "events": []
+}
+```
+
+User UI 仍不得展示 `private_debug` 槽位；Debug/Admin 视图可查看隐藏槽位和原始输入。
+
 响应：
 
 ```json

@@ -75,6 +75,8 @@ export type SessionSlot = {
   updated_at: string;
 };
 
+export type SlotPatchValue = string | number | null;
+
 export type StreamEvent = {
   sessionId: string;
   type: string;
