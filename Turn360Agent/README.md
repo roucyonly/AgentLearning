@@ -23,6 +23,14 @@ cd backend
 python -m pip install -r requirements.txt
 ```
 
+Environment template:
+
+```powershell
+Copy-Item ..\.env.example ..\.env
+```
+
+Fill `.env` with local secrets. The app reads normal process environment variables; load the file through your shell/tooling or run Uvicorn with `--env-file ..\.env`.
+
 Run API:
 
 ```powershell
