@@ -29,6 +29,15 @@ Run API:
 uvicorn app.main:app --reload
 ```
 
+Optional LLM integration:
+
+```powershell
+$env:OPENAI_API_KEY="sk-..."
+$env:OPENAI_MODEL="chat-latest"
+```
+
+The LLM layer uses OpenAI's Responses API for slot extraction and guided replies. If `OPENAI_API_KEY` is not set, the app falls back to the deterministic MVP extractor.
+
 Run core tests without FastAPI dependencies:
 
 ```powershell

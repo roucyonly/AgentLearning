@@ -227,6 +227,34 @@ MVP 阶段先使用确定性抽槽位逻辑，不接 LLM。用户可以用自然
 
 抽槽位只是 MVP 的兜底交互层。后续接 LLM 时仍必须保留结构化槽位更新、白名单字段和 Debug 可追踪事件，避免模型直接改写不可解释结论。
 
+### 3.2.4 LLM 接入边界
+
+后端已预留并接入 OpenAI Responses API 的 LLM 层：
+
+```text
+用户自然语言
+-> LLM GuidedAgent：识别意图、抽槽位、生成下一问
+-> 白名单槽位过滤
+-> Finance/Location/Category/Decision Engines 重新计算
+-> Session messages + visible_slots + debug events
+```
+
+环境变量：
+
+```powershell
+$env:OPENAI_API_KEY="sk-..."
+$env:OPENAI_MODEL="chat-latest"
+$env:OPENAI_TIMEOUT_SECONDS="20"
+```
+
+约束：
+
+- 没有 `OPENAI_API_KEY` 时自动回退到确定性抽槽位。
+- LLM 只能输出结构化槽位、自然语言回复和下一问。
+- LLM 不允许直接改最终结论，不允许绕过财务、地址、品类和决策引擎。
+- Debug/Admin 视图可看到 `llm.completed` 或 `llm.fallback` 事件；User UI 不展示内部错误和隐藏评分。
+- 模型输出经过白名单槽位过滤，只允许更新 `monthly_rent`、`monthly_labor`、`gross_margin_rate`、`category_name` 等受控字段。
+
 响应：
 
 ```json

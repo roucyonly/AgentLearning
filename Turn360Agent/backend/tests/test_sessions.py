@@ -1,7 +1,11 @@
+import os
 import unittest
+
+os.environ.pop("OPENAI_API_KEY", None)
 
 from app.services.decision.pre_opening import PreOpeningEvaluationInput
 from app.services.finance.calculator import PreOpeningFinanceInput
+from app.services.llm.guided_agent import LLMGuidedTurn
 from app.services.session.store import SessionStore, build_session_view, stream_events_for_view
 
 
@@ -126,7 +130,40 @@ class SessionStoreTest(unittest.TestCase):
         self.assertEqual(updated.messages[-1]["role"], "assistant")
         self.assertIn("日盈亏平衡点", updated.messages[-1]["content"])
         self.assertIn("current_question", view)
+        debug_view = build_session_view(updated, "debug")
+        self.assertTrue(any(event["type"] == "llm.disabled" for event in debug_view["events"]))
+
+    def test_chat_message_uses_llm_slots_when_available(self) -> None:
+        store = SessionStore(guided_agent=FakeGuidedAgent())
+        record = store.create_pre_opening()
+
+        updated = store.handle_chat_message(record.session_id, "我想做社区早餐，人流挺好")
+        debug_view = build_session_view(updated, "debug")
+
+        self.assertEqual(updated.evaluation["location"]["city"], "杭州")
+        self.assertEqual(updated.evaluation["category"]["name"], "早餐")
+        self.assertEqual(updated.evaluation["finance"]["monthly_fixed_cost"], 18000)
+        self.assertIn("先别只说人流好", updated.messages[-1]["content"])
+        self.assertTrue(any(event["type"] == "llm.completed" for event in debug_view["events"]))
 
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FakeGuidedAgent:
+    is_configured = True
+
+    def run(self, **_: object) -> LLMGuidedTurn:
+        return LLMGuidedTurn(
+            slot_updates={
+                "city": "杭州",
+                "category_name": "早餐",
+                "monthly_rent": 9000,
+                "monthly_labor": 7000,
+                "monthly_utilities": 2000,
+            },
+            assistant_reply="先别只说人流好，我先把你说出来的硬数字放进表里。",
+            next_question="你在门口数 30 分钟，目标客群到底有多少人？",
+            debug={"llm_provider": "fake"},
+        )

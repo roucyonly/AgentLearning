@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from app.services.decision.pre_opening import PreOpeningEvaluationInput, evaluate_pre_opening
 from app.services.finance.calculator import PreOpeningFinanceInput
+from app.services.llm.guided_agent import GuidedAgentLLM, LLMGuidedTurn
 
 
 FINANCE_SLOT_FIELDS = {
@@ -133,8 +134,9 @@ class SessionRecord:
 
 
 class SessionStore:
-    def __init__(self) -> None:
+    def __init__(self, guided_agent: GuidedAgentLLM | None = None) -> None:
         self._records: dict[str, SessionRecord] = {}
+        self.guided_agent = guided_agent or GuidedAgentLLM()
 
     def create_pre_opening(self, payload: PreOpeningEvaluationInput | None = None) -> SessionRecord:
         input_payload = payload or DEFAULT_PRE_OPENING_INPUT
@@ -230,11 +232,34 @@ class SessionStore:
             }
         )
 
-        updates = extract_slot_updates(text)
+        llm_enabled = bool(getattr(self.guided_agent, "is_configured", True))
+        llm_turn = self.run_llm_turn(record, text)
+        updates = {}
+        if llm_turn is not None:
+            updates.update(llm_turn.slot_updates)
+        updates.update(extract_slot_updates(text))
+
         if updates:
             record = self.patch_pre_opening_slots(session_id, updates)
-            reply = build_chat_reply(record, updates)
+            if llm_turn is not None:
+                record.events.append(
+                    event("llm.completed", "dialogue_planner", "LLM extracted slots and drafted the next question", "private_debug", llm_turn.debug)
+                )
+            elif not llm_enabled:
+                record.events.append(
+                    event("llm.disabled", "dialogue_planner", "LLM not configured; deterministic extraction used", "private_debug")
+                )
+            reply = build_chat_reply(record, updates, llm_turn)
+        elif llm_turn is not None and (llm_turn.assistant_reply or llm_turn.next_question):
+            record.events.append(
+                event("llm.completed", "dialogue_planner", "LLM produced a guided reply without slot updates", "private_debug", llm_turn.debug)
+            )
+            reply = llm_turn.assistant_reply or llm_turn.next_question
         else:
+            if not llm_enabled:
+                record.events.append(
+                    event("llm.disabled", "dialogue_planner", "LLM not configured; deterministic extraction used", "private_debug")
+                )
             reply = "我先没抓到能直接算账的数字。你按这句回我就行：城市、位置、品类、房租、人工、毛利率、客单价。"
 
         record.messages.append(
@@ -247,6 +272,17 @@ class SessionStore:
             }
         )
         return record
+
+    def run_llm_turn(self, record: SessionRecord, text: str) -> LLMGuidedTurn | None:
+        if not bool(getattr(self.guided_agent, "is_configured", True)):
+            return None
+        try:
+            return self.guided_agent.run(record_input=record.input_payload, messages=record.messages, user_message=text)
+        except RuntimeError as exc:
+            record.events.append(
+                event("llm.fallback", "dialogue_planner", "LLM unavailable; deterministic extraction used", "private_debug", {"error": str(exc)})
+            )
+            return None
 
 
 def utc_now() -> str:
@@ -325,15 +361,17 @@ def normalize_category(keyword: str) -> str:
     return keyword
 
 
-def build_chat_reply(record: SessionRecord, updates: dict[str, Any]) -> str:
+def build_chat_reply(record: SessionRecord, updates: dict[str, Any], llm_turn: LLMGuidedTurn | None = None) -> str:
     result = record.evaluation
     captured = "、".join(slot_label(slot_id) for slot_id in updates)
-    question = next_question(record)
-    return (
+    question = llm_turn.next_question if llm_turn is not None and llm_turn.next_question else next_question(record)
+    summary = (
         f"我抓到了：{captured}。现在日盈亏平衡点是 {result['finance']['daily_breakeven']} 元，"
         f"目标回本日销是 {result['finance']['target_daily_revenue']} 元，地址分 {result['location']['score']}。"
-        f"{question}"
     )
+    if llm_turn is not None and llm_turn.assistant_reply:
+        return f"{llm_turn.assistant_reply}\n{summary}{question}"
+    return f"{summary}{question}"
 
 
 def next_question(record: SessionRecord) -> str:
